@@ -3,10 +3,9 @@
 namespace Flash\Controller\Component;
 
 use Cake\Controller\ComponentRegistry;
+use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
-use Cake\Utility\Hash;
 use Exception;
 
 /**
@@ -36,8 +35,7 @@ class FlashComponent extends CakeFlashComponent {
 	 * @param \Cake\Controller\ComponentRegistry $registry A ComponentRegistry for this component
 	 * @param array $config Array of config.
 	 */
-	public function __construct(ComponentRegistry $registry, array $config = [])
-	{
+	public function __construct(ComponentRegistry $registry, array $config = []) {
 		$this->_defaultConfig += $this->_defaultConfigExt;
 		parent::__construct($registry, $config);
 	}

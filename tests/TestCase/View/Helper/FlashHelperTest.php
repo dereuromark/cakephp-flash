@@ -3,8 +3,8 @@
 namespace Flash\Test\TestCase\View\Helper;
 
 use Cake\Routing\Router;
-use Cake\View\View;
 use Cake\TestSuite\TestCase;
+use Cake\View\View;
 use Flash\View\Helper\FlashHelper;
 
 /**

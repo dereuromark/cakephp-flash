@@ -5,9 +5,8 @@ namespace Flash\Test\TestCase\Controller\Component;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Network\Request;
-use Cake\Network\Session;
-use TestApp\Controller\FlashComponentTestController;
 use Cake\TestSuite\TestCase;
+use TestApp\Controller\FlashComponentTestController;
 
 /**
  */
