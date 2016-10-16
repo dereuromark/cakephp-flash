@@ -28,7 +28,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	protected $_defaultConfigExt = [
 		'headerKey' => 'X-Flash', // Set to empty string to deactivate AJAX response
-		'limit' => 10 // Max message limit per type - first in, first out
+		'limit' => 10 // Max message limit per key - first in, first out
 	];
 
 	/**

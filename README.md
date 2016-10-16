@@ -14,9 +14,10 @@ A plugin for more powerful flash messages in your CakePHP apps.
 ## Features
 
 - AJAX header support
-- Limit of messages per stack type
-- Transient flash messages (non persistent, current request only)
+- Limit of messages per stack key
+- Transient flash message support (non persistent, current request only)
 - By default 4 types (one more): error, warning, success, info
+- Ordered output (error, warning, success, info) and output filtering per type
 
 
 ## Install

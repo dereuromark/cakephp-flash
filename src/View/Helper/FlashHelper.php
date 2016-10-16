@@ -22,6 +22,7 @@ class FlashHelper extends Helper {
 		'key' => 'flash',
 		'element' => 'default',
 		'params' => [],
+		'order' => ['error', 'warning', 'success', 'info'],
 		'limit' => 10 // Max message limit per type - first in, first out
 	];
 
@@ -45,8 +46,9 @@ class FlashHelper extends Helper {
 		$messages = (array)$this->request->session()->read('Flash.' . $key);
 		$transientMessages = (array)Configure::read('TransientFlash.' . $key);
 		if ($transientMessages) {
-			$messages = Hash::merge($messages, $transientMessages);
+			$messages = array_merge($messages, $transientMessages);
 		}
+		$messages = $this->_order($messages);
 
 		$html = '';
 		foreach ($messages as $message) {
@@ -79,6 +81,36 @@ class FlashHelper extends Helper {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * @param array $messages
+	 * @return array
+	 */
+	protected function _order($messages) {
+		$order = $this->config('order');
+		if (!$order) {
+			return $messages;
+		}
+
+		$result = [];
+		foreach ($order as $type) {
+			foreach ($messages as $k => $message) {
+				$messageType = isset($message['type']) ? $message['type'] : substr($message['element'], strrpos($message['type'], '/') + 1);
+				if ($messageType !== $type) {
+					continue;
+				}
+
+				$result[] = $message;
+				unset($messages[$k]);
+			}
+		}
+
+		foreach ($messages as $message) {
+			$result[] = $message;
+		}
+
+		return $result;
 	}
 
 	/**
