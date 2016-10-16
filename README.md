@@ -70,12 +70,16 @@ $this->Flash->success('Yeah');
 // or
 $this->Flash->error('Oh <b>NO</b>', ['escape' => false]);
 ```
+For transient messages:
+```php
+$this->Flash->transientMessage('I am not persisted in session');
+```
 
 In your view you can also add transient flash messages:
 
 ```php
-$this->addTransientMessage('I am not persisted in session');
-$this->addTransientMessage('Oh oh', ['element' => 'error']);
+$this->Flash->addTransientMessage('Only for this request');
+$this->Flash->addTransientMessage('Oh oh', ['type' => 'error']);
 ```
 Note: Do not try to add anything in the layout below the `render()` call as that would not be included anymore.
 
@@ -84,9 +88,32 @@ If you want to just output a message anywhere in your template (like a warning b
 echo $this->message('Hey, I am an info block');
 ```
 
+### Rendering each type in a separate process
+The following would only render (and remove) the error messages:
+```php
+<?= $this->Flash->render('flash', ['types' => ['error']]) ?>
+```
+
 ## Customization
+### Component Options
+
+Option |Description
+:----- | :----------
+limit | Max message limit per key (first in, first out), defaults to 10
+headerKey | Header key for AJAX responses, set to empty string to deactivate AJAX response
+
+as well as the CakePHP core component options.
+
+### Helper Options
+
+Option |Description
+:----- | :----------
+limit | Max message limit per key (first in, first out), defaults to 10
+order | Order of output, types default to `['error', 'warning', 'success', 'info']`
 
 ### Flash layouts
+You should have `default.ctp`, `error.ctp`, `warning.ctp`, `success.ctp`, and `info.ctp` templates.
+
 The `src/Template/Element/Flash/error.ctp` could look like this:
 ```html
 <?php
@@ -96,3 +123,4 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 ?>
 <div class="alert alert-danger"><?= $message ?></div>
 ```
+You can copy and adjust the existing ones from the `tests/TestApp/Template/Element/Flash/` folder (bootstrap) or from the cakephp/app repo (foundation).
