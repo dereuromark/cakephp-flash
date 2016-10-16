@@ -21,8 +21,7 @@ A plugin for more powerful flash messages in your CakePHP apps.
 
 
 ## Install
-
-### Composer (preferred)
+Run
 ```
 composer require dereuromark/cakephp-flash
 ```
@@ -99,8 +98,8 @@ The following would only render (and remove) the error messages:
 
 Option |Description
 :----- | :----------
-limit | Max message limit per key (first in, first out), defaults to 10
-headerKey | Header key for AJAX responses, set to empty string to deactivate AJAX response
+limit | Max message limit per key (first in, first out), defaults to `10`.
+headerKey | Header key for AJAX responses, set to empty string to deactivate AJAX response.
 
 as well as the CakePHP core component options.
 
@@ -108,8 +107,8 @@ as well as the CakePHP core component options.
 
 Option |Description
 :----- | :----------
-limit | Max message limit per key (first in, first out), defaults to 10
-order | Order of output, types default to `['error', 'warning', 'success', 'info']`
+limit | Max message limit per key (first in, first out), defaults to `10`.
+order | Order of output, types default to `['error', 'warning', 'success', 'info']`, all others are rendered last.
 
 ### Flash layouts
 You should have `default.ctp`, `error.ctp`, `warning.ctp`, `success.ctp`, and `info.ctp` templates.
