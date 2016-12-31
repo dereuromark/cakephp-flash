@@ -6,6 +6,7 @@
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg)](https://php.net/)
 [![License](https://poser.pugx.org/dereuromark/cakephp-flash/license.png)](https://packagist.org/packages/dereuromark/cakephp-flash)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-flash/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-flash)
+[![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 
 A plugin for more powerful flash messages in your CakePHP apps.
 
