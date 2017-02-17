@@ -107,7 +107,10 @@ class FlashComponentTest extends TestCase {
 		$this->Controller->Flash->beforeRender($event);
 
 		$result = $this->Controller->response->header();
-		$expected = ['X-Flash' => '{"flash":[{"message":"yeah","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]}]}'];
+		$expected = [
+			'Content-Type' => 'text/html',
+			'X-Flash' => '{"flash":[{"message":"yeah","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]}]}'
+		];
 		$this->assertSame($expected, $result);
 	}
 
