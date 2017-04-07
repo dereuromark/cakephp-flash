@@ -163,7 +163,7 @@ class FlashComponent extends CakeFlashComponent {
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
 
-		$options += $this->config();
+		$options += (array)$this->config();
 
 		return $options;
 	}

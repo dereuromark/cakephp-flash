@@ -17,6 +17,9 @@ matrix:
       env: PHPCS=1 DEFAULT=0
 
     - php: 7.0
+      env: PHPSTAN=1 DEFAULT=0
+
+    - php: 7.0
       env: CODECOVERAGE=1 DEFAULT=0
 
   fast_finish: true
@@ -25,15 +28,18 @@ before_script:
   - composer self-update
   - composer install --prefer-source --no-interaction
 
+  - if [[ $PHPCS != 1 ]]; then composer require phpunit/phpunit:"<6.0"; fi
+
   - phpenv rehash
   - set +H
   - cp phpunit.xml.dist phpunit.xml
 
 script:
-  - sh -c "if [ '$DEFAULT' = '1' ]; then phpunit; fi"
+  - if [[ $DEFAULT == 1 ]]; then vendor/bin/phpunit; fi
+  - if [[ $PHPSTAN == 1 ]]; then composer require --dev phpstan/phpstan && composer phpstan; fi
   - sh -c "if [ '$PHPCS' = '1' ]; then vendor/bin/phpcs -p --extensions=php --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=vendor --ignore=docs --ignore=config/Migrations -v . ; fi"
 
-  - sh -c "if [ '$CODECOVERAGE' = '1' ]; then phpunit --coverage-clover=clover.xml || true; fi"
+  - sh -c "if [ '$CODECOVERAGE' = '1' ]; then vendor/bin/phpunit --coverage-clover=clover.xml || true; fi"
   - sh -c "if [ '$CODECOVERAGE' = '1' ]; then wget -O codecov.sh https://codecov.io/bash; fi"
   - sh -c "if [ '$CODECOVERAGE' = '1' ]; then bash codecov.sh; fi"
 
