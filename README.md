@@ -95,6 +95,7 @@ The following would only render (and remove) the error messages:
 ```
 
 ## Customization
+
 ### Component Options
 
 Option |Description

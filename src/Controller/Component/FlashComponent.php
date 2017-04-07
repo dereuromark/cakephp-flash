@@ -153,6 +153,9 @@ class FlashComponent extends CakeFlashComponent {
 				'type' => $type,
 			];
 		}
+
+		$options = $this->_transformCrudOptions($options);
+
 		if (isset($options['element']) && !isset($options['type'])) {
 			$options['type'] = $options['element'];
 		}
@@ -210,6 +213,29 @@ class FlashComponent extends CakeFlashComponent {
 			'params' => $options['params']
 		];
 		Configure::write('TransientFlash.' . $options['key'], $messages);
+	}
+
+	/**
+	 * Transforms Crud plugin flashs into Flash messages.
+	 *
+	 * @param array $options
+	 *
+	 * @return array
+	 */
+	protected function _transformCrudOptions(array $options) {
+		if (isset($options['params']['class']) && !isset($options['type'])) {
+			$class = $options['params']['class'];
+			$pos = strrpos($class, ' ');
+			if ($pos !== false) {
+				$class = substr($class, $pos + 1);
+			}
+			$options['type'] = $class;
+			$options['element'] = $class;
+			unset($options['params']['class']);
+			unset($options['params']['original']);
+		}
+
+		return $options;
 	}
 
 }

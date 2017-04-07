@@ -60,7 +60,10 @@ class FlashComponentTest extends TestCase {
 
 		$res = $this->Controller->request->session()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
+
 		$this->assertSame('efg', $res[0]['message']);
+		$this->assertSame('info', $res[0]['type']);
+		$this->assertSame('Flash/info', $res[0]['element']);
 	}
 
 	/**
@@ -71,7 +74,10 @@ class FlashComponentTest extends TestCase {
 
 		$res = $this->Controller->request->session()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
+
 		$this->assertSame('Some Error Message', $res[0]['message']);
+		$this->assertSame('error', $res[0]['type']);
+		$this->assertSame('Flash/error', $res[0]['element']);
 	}
 
 	/**
@@ -112,6 +118,29 @@ class FlashComponentTest extends TestCase {
 			'X-Flash' => '{"flash":[{"message":"yeah","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]}]}'
 		];
 		$this->assertSame($expected, $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCrudFlash() {
+		$this->Controller->Flash->set('efg', [
+			'key' => 'flash',
+			'element' => 'default',
+			'params' => [
+				'class' => 'message error',
+				'original' => 'efg',
+				'escape' => false,
+			]
+		]);
+
+		$res = $this->Controller->request->session()->read('Flash.flash');
+		$this->assertTrue(!empty($res));
+
+		$this->assertSame('efg', $res[0]['message']);
+		$this->assertSame('error', $res[0]['type']);
+		$this->assertSame('Flash/error', $res[0]['element']);
+		$this->assertFalse($res[0]['params']['escape']);
 	}
 
 }
