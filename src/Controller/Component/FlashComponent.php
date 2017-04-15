@@ -45,16 +45,16 @@ class FlashComponent extends CakeFlashComponent {
 	 * Controller::render()
 	 *
 	 * @param \Cake\Event\Event $event
-	 * @return \Cake\Network\Response|null|void
+	 * @return \Cake\Http\Response|null
 	 */
 	public function beforeRender(Event $event) {
 		if (!$this->request->is('ajax')) {
-			return;
+			return null;
 		}
 
 		$headerKey = $this->config('headerKey');
 		if (!$headerKey) {
-			return;
+			return null;
 		}
 
 		$ajaxMessages = array_merge_recursive(
