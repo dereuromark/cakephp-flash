@@ -4,7 +4,7 @@ namespace Flash\Test\TestCase\Controller\Component;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Network\Request;
+use Cake\Http\ServerRequest;
 use Cake\TestSuite\TestCase;
 use TestApp\Controller\FlashComponentTestController;
 
@@ -23,10 +23,10 @@ class FlashComponentTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->Controller = new FlashComponentTestController(new Request());
+		$this->Controller = new FlashComponentTestController(new ServerRequest());
 		$this->Controller->startupProcess();
 
-		$this->Controller->request->session()->delete('Flash');
+		$this->Controller->request->getSession()->delete('Flash');
 		Configure::delete('TransientFlash');
 	}
 
@@ -58,7 +58,7 @@ class FlashComponentTest extends TestCase {
 	public function testMessage() {
 		$this->Controller->Flash->message('efg');
 
-		$res = $this->Controller->request->session()->read('Flash.flash');
+		$res = $this->Controller->request->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 
 		$this->assertSame('efg', $res[0]['message']);
@@ -72,7 +72,7 @@ class FlashComponentTest extends TestCase {
 	public function testMagic() {
 		$this->Controller->Flash->error('Some Error Message');
 
-		$res = $this->Controller->request->session()->read('Flash.flash');
+		$res = $this->Controller->request->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 
 		$this->assertSame('Some Error Message', $res[0]['message']);
@@ -86,7 +86,7 @@ class FlashComponentTest extends TestCase {
 	public function testCoreHook() {
 		$this->Controller->Flash->set('Some Message');
 
-		$res = $this->Controller->request->session()->read('Flash.flash');
+		$res = $this->Controller->request->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 		$this->assertSame('info', $res[0]['type']);
 		$this->assertSame('Some Message', $res[0]['message']);
@@ -96,12 +96,12 @@ class FlashComponentTest extends TestCase {
 	 * @return void
 	 */
 	public function testAjax() {
-		$session = $this->Controller->request->session();
-		$this->Controller->request = $this->getMockBuilder(Request::class)->setMethods(['is'])->getMock();
+		$session = $this->Controller->request->getSession();
+		$this->Controller->request = $this->getMockBuilder(ServerRequest::class)->setMethods(['is'])->getMock();
 		$this->Controller->Flash->request->session($session);
 
 		$this->Controller->Flash->success('yeah');
-		$this->Controller->request->session()->write('Foo', 'bar');
+		$this->Controller->request->getSession()->write('Foo', 'bar');
 		$this->Controller->Flash->transientMessage('xyz', 'warning');
 
 		$this->Controller->request->expects($this->once())
@@ -134,7 +134,7 @@ class FlashComponentTest extends TestCase {
 			]
 		]);
 
-		$res = $this->Controller->request->session()->read('Flash.flash');
+		$res = $this->Controller->request->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 
 		$this->assertSame('efg', $res[0]['message']);

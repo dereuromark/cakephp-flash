@@ -52,13 +52,13 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		$headerKey = $this->config('headerKey');
+		$headerKey = $this->getConfig('headerKey');
 		if (!$headerKey) {
 			return null;
 		}
 
 		$ajaxMessages = array_merge_recursive(
-			(array)$this->request->session()->consume('Flash'),
+			(array)$this->request->getSession()->consume('Flash'),
 			(array)Configure::consume('TransientFlash')
 		);
 
@@ -101,7 +101,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	public function set($message, array $options = []) {
 		$options = $this->_mergeOptions($options);
-		$options += $this->config();
+		$options += $this->getConfig();
 
 		if ($message instanceof Exception) {
 			if (!isset($options['params']['code'])) {
@@ -163,7 +163,7 @@ class FlashComponent extends CakeFlashComponent {
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
 
-		$options += (array)$this->config();
+		$options += (array)$this->getConfig();
 
 		return $options;
 	}
@@ -175,7 +175,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	protected function _assertSessionStackSize(array $options) {
 		$messages = (array)$this->_session->read('Flash.' . $options['key']);
-		if ($messages && count($messages) > $this->config('limit')) {
+		if ($messages && count($messages) > $this->getConfig('limit')) {
 			array_shift($messages);
 		}
 		$this->_session->write('Flash.' . $options['key'], $messages);
@@ -202,7 +202,7 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		$messages = (array)Configure::read('TransientFlash.' . $options['key']);
-		if ($messages && count($messages) > $this->config('limit')) {
+		if ($messages && count($messages) > $this->getConfig('limit')) {
 			array_shift($messages);
 		}
 		$messages[] = [

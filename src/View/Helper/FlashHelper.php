@@ -42,7 +42,7 @@ class FlashHelper extends Helper {
 		$options += ['types' => []];
 
 		// Get the messages from the session
-		$messages = (array)$this->request->session()->read('Flash.' . $key);
+		$messages = (array)$this->request->getSession()->read('Flash.' . $key);
 		$transientMessages = (array)Configure::read('TransientFlash.' . $key);
 		if ($transientMessages) {
 			$messages = array_merge($messages, $transientMessages);
@@ -60,12 +60,12 @@ class FlashHelper extends Helper {
 		}
 
 		if ($options['types']) {
-			$messages = (array)$this->request->session()->read('Flash.' . $key);
+			$messages = (array)$this->request->getSession()->read('Flash.' . $key);
 			foreach ($messages as $index => $message) {
 				if (!in_array($message['type'], $options['types'])) {
 					continue;
 				}
-				$this->request->session()->delete('Flash.' . $key . '.' . $index);
+				$this->request->getSession()->delete('Flash.' . $key . '.' . $index);
 			}
 			foreach ($transientMessages as $index => $message) {
 				if (!in_array($message['type'], $options['types'])) {
@@ -75,7 +75,7 @@ class FlashHelper extends Helper {
 			}
 
 		} else {
-			$this->request->session()->delete('Flash.' . $key);
+			$this->request->getSession()->delete('Flash.' . $key);
 			Configure::delete('TransientFlash.' . $key);
 		}
 
@@ -87,7 +87,7 @@ class FlashHelper extends Helper {
 	 * @return array
 	 */
 	protected function _order($messages) {
-		$order = $this->config('order');
+		$order = $this->getConfig('order');
 		if (!$order) {
 			return $messages;
 		}
@@ -140,7 +140,7 @@ class FlashHelper extends Helper {
 		$options['message'] = $message;
 
 		$messages = (array)Configure::read('TransientFlash.' . $options['key']);
-		if ($messages && count($messages) > $this->config('limit')) {
+		if ($messages && count($messages) > $this->getConfig('limit')) {
 			array_shift($messages);
 		}
 		$messages[] = $options;
@@ -166,7 +166,7 @@ class FlashHelper extends Helper {
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
 
-		$options += $this->config();
+		$options += $this->getConfig();
 
 		list($plugin, $element) = pluginSplit($options['element']);
 
