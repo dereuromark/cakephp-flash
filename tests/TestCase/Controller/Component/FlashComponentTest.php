@@ -98,7 +98,7 @@ class FlashComponentTest extends TestCase {
 	public function testAjax() {
 		$session = $this->Controller->request->getSession();
 		$this->Controller->request = $this->getMockBuilder(ServerRequest::class)->setMethods(['is'])->getMock();
-		$this->Controller->Flash->request->session($session);
+		$this->Controller->Flash->request->getSession($session);
 
 		$this->Controller->Flash->success('yeah');
 		$this->Controller->request->getSession()->write('Foo', 'bar');
@@ -112,10 +112,10 @@ class FlashComponentTest extends TestCase {
 		$event = new Event('Controller.startup', $this->Controller);
 		$this->Controller->Flash->beforeRender($event);
 
-		$result = $this->Controller->response->header();
+		$result = $this->Controller->getResponse()->getHeaders();
 		$expected = [
-			'Content-Type' => 'text/html',
-			'X-Flash' => '{"flash":[{"message":"yeah","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]}]}'
+			'Content-Type' => ['text/html'],
+			'X-Flash' => ['{"flash":[{"message":"yeah","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]}]}']
 		];
 		$this->assertSame($expected, $result);
 	}

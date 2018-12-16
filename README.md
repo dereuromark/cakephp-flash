@@ -10,7 +10,7 @@
 
 A plugin for more powerful flash messages in your CakePHP apps.
 
-Note: This branch is for CakePHP 3.5+
+Note: This branch is for CakePHP 3.7+
 
 ## Features
 

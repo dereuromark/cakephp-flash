@@ -42,7 +42,7 @@ class FlashHelper extends Helper {
 		$options += ['types' => []];
 
 		// Get the messages from the session
-		$messages = (array)$this->request->getSession()->read('Flash.' . $key);
+		$messages = (array)$this->_View->getRequest()->getSession()->read('Flash.' . $key);
 		$transientMessages = (array)Configure::read('TransientFlash.' . $key);
 		if ($transientMessages) {
 			$messages = array_merge($messages, $transientMessages);
@@ -60,12 +60,12 @@ class FlashHelper extends Helper {
 		}
 
 		if ($options['types']) {
-			$messages = (array)$this->request->getSession()->read('Flash.' . $key);
+			$messages = (array)$this->_View->getRequest()->getSession()->read('Flash.' . $key);
 			foreach ($messages as $index => $message) {
 				if (!in_array($message['type'], $options['types'])) {
 					continue;
 				}
-				$this->request->getSession()->delete('Flash.' . $key . '.' . $index);
+				$this->_View->getRequest()->getSession()->delete('Flash.' . $key . '.' . $index);
 			}
 			foreach ($transientMessages as $index => $message) {
 				if (!in_array($message['type'], $options['types'])) {
@@ -75,7 +75,7 @@ class FlashHelper extends Helper {
 			}
 
 		} else {
-			$this->request->getSession()->delete('Flash.' . $key);
+			$this->_View->getRequest()->getSession()->delete('Flash.' . $key);
 			Configure::delete('TransientFlash.' . $key);
 		}
 
