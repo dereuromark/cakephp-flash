@@ -7,15 +7,12 @@ use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use Flash\View\Helper\FlashHelper;
 
-/**
- * FlashHelper tests
- */
 class FlashHelperTest extends TestCase {
 
 	/**
 	 * @var array
 	 */
-	public $fixtures = ['core.sessions'];
+	public $fixtures = ['core.Sessions'];
 
 	/**
 	 * @var \Flash\View\Helper\FlashHelper
@@ -34,8 +31,6 @@ class FlashHelperTest extends TestCase {
 	}
 
 	/**
-	 * FlashHelperTest::testMessage()
-	 *
 	 * @return void
 	 */
 	public function testMessage() {
@@ -46,8 +41,6 @@ class FlashHelperTest extends TestCase {
 	}
 
 	/**
-	 * FlashHelperTest::testRender()
-	 *
 	 * @return void
 	 */
 	public function testRender() {

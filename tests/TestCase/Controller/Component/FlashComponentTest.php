@@ -96,18 +96,11 @@ class FlashComponentTest extends TestCase {
 	 * @return void
 	 */
 	public function testAjax() {
-		$session = $this->Controller->request->getSession();
-		$this->Controller->request = $this->getMockBuilder(ServerRequest::class)->setMethods(['is'])->getMock();
-		$this->Controller->Flash->request->getSession($session);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
 		$this->Controller->Flash->success('yeah');
 		$this->Controller->request->getSession()->write('Foo', 'bar');
 		$this->Controller->Flash->transientMessage('xyz', 'warning');
-
-		$this->Controller->request->expects($this->once())
-			->method('is')
-			->with('ajax')
-			->will($this->returnValue(true));
 
 		$event = new Event('Controller.startup', $this->Controller);
 		$this->Controller->Flash->beforeRender($event);

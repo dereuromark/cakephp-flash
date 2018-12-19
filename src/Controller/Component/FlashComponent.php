@@ -48,7 +48,10 @@ class FlashComponent extends CakeFlashComponent {
 	 * @return \Cake\Http\Response|null
 	 */
 	public function beforeRender(Event $event) {
-		if (!$this->request->is('ajax')) {
+		/** @var \Cake\Controller\Controller $controller */
+		$controller = $event->getSubject();
+
+		if (!$controller->getRequest()->is('ajax')) {
 			return null;
 		}
 
@@ -56,9 +59,6 @@ class FlashComponent extends CakeFlashComponent {
 		if (!$headerKey) {
 			return null;
 		}
-
-		/** @var \Cake\Controller\Controller $controller */
-		$controller = $event->getSubject();
 
 		$ajaxMessages = array_merge_recursive(
 			(array)$controller->getRequest()->getSession()->consume('Flash'),
@@ -77,7 +77,7 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$this->getController()->setResponse($this->response->withHeader($headerKey, json_encode($array)));
+		$this->getController()->setResponse($controller->getResponse()->withHeader($headerKey, json_encode($array)));
 	}
 
 	/**
