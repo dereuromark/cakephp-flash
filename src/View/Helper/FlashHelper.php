@@ -95,7 +95,7 @@ class FlashHelper extends Helper {
 		$result = [];
 		foreach ($order as $type) {
 			foreach ($messages as $k => $message) {
-				$messageType = isset($message['type']) ? $message['type'] : substr($message['element'], strrpos($message['type'], '/') + 1);
+				$messageType = isset($message['type']) ? $message['type'] : substr($message['element'], strrpos($message['element'], '/') + 1);
 				if ($messageType !== $type) {
 					continue;
 				}
