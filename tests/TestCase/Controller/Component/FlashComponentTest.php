@@ -8,8 +8,6 @@ use Cake\Http\ServerRequest;
 use Cake\TestSuite\TestCase;
 use TestApp\Controller\FlashComponentTestController;
 
-/**
- */
 class FlashComponentTest extends TestCase {
 
 	/**
