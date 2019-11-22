@@ -28,7 +28,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	protected $_defaultConfigExt = [
 		'headerKey' => 'X-Flash', // Set to empty string to deactivate AJAX response
-		'limit' => 10 // Max message limit per key - first in, first out
+		'limit' => 10, // Max message limit per key - first in, first out
 	];
 
 	/**
@@ -71,7 +71,7 @@ class FlashComponent extends CakeFlashComponent {
 				$array[$key][] = [
 					'message' => $message['message'],
 					'type' => $message['type'],
-					'params' => $message['params']
+					'params' => $message['params'],
 				];
 			}
 		}
@@ -135,7 +135,7 @@ class FlashComponent extends CakeFlashComponent {
 			'message' => $message,
 			'key' => $options['key'],
 			'element' => $options['element'],
-			'params' => $options['params']
+			'params' => $options['params'],
 		];
 
 		$this->_session->write('Flash.' . $options['key'], $messages);
@@ -213,7 +213,7 @@ class FlashComponent extends CakeFlashComponent {
 			'message' => $message,
 			'key' => $options['key'],
 			'element' => $options['element'],
-			'params' => $options['params']
+			'params' => $options['params'],
 		];
 		Configure::write('TransientFlash.' . $options['key'], $messages);
 	}

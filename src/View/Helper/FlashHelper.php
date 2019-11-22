@@ -22,7 +22,7 @@ class FlashHelper extends Helper {
 		'element' => 'default',
 		'params' => [],
 		'order' => ['error', 'warning', 'success', 'info'],
-		'limit' => 10 // Max message limit per type - first in, first out
+		'limit' => 10, // Max message limit per type - first in, first out
 	];
 
 	/**
@@ -159,7 +159,7 @@ class FlashHelper extends Helper {
 				$type = 'info';
 			}
 			$options = [
-				'type' => $type
+				'type' => $type,
 			];
 		}
 
