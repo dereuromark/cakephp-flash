@@ -14,18 +14,18 @@ bin/cake plugin load Flash
 
 You can simply modify the existing config entries in your `config/app.php`:
  ```php
-	'Flash' => [
-		...
-	],
+    'Flash' => [
+        ...
+    ],
 ```
 
 ### Include the component
 In your AppController:
 ```php
 public function initialize() {
-	parent::initialize();
+    parent::initialize();
 
-	$this->loadComponent('Flash.Flash');
+    $this->loadComponent('Flash.Flash');
 }
 ```
 
@@ -33,7 +33,7 @@ public function initialize() {
 In your AppView:
 ```php
 public function initialize() {
-	$this->loadHelper('Flash.Flash');
+    $this->loadHelper('Flash.Flash');
 }
 ```
 
@@ -99,7 +99,7 @@ The `src/Template/Element/Flash/error.ctp` could look like this:
 ```html
 <?php
 if (!isset($params['escape']) || $params['escape'] !== false) {
-	$message = h($message);
+    $message = h($message);
 }
 ?>
 <div class="alert alert-danger"><?= $message ?></div>
