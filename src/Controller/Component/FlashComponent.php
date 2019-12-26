@@ -102,7 +102,7 @@ class FlashComponent extends CakeFlashComponent {
 	 *
 	 * @return void
 	 */
-	public function set($message, array $options = []) {
+	public function set($message, array $options = []): void {
 		$options = $this->_mergeOptions($options);
 		$options += $this->getConfig();
 
@@ -127,7 +127,7 @@ class FlashComponent extends CakeFlashComponent {
 
 		$messages = [];
 		if ($options['clear'] === false) {
-			$messages = (array)$this->_session->read('Flash.' . $options['key']);
+			$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
 		}
 
 		$messages[] = [
@@ -138,7 +138,7 @@ class FlashComponent extends CakeFlashComponent {
 			'params' => $options['params'],
 		];
 
-		$this->_session->write('Flash.' . $options['key'], $messages);
+		$this->getSession()->write('Flash.' . $options['key'], $messages);
 	}
 
 	/**
