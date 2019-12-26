@@ -17,17 +17,28 @@ class FlashHelperTest extends TestCase {
 	/**
 	 * @var \Flash\View\Helper\FlashHelper
 	 */
-	public $Flash;
+	protected $Flash;
 
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		Router::reload();
 		$View = new View(null);
 		$this->Flash = new FlashHelper($View);
+	}
+
+	/**
+	 * TearDown method
+	 *
+	 * @return void
+	 */
+	public function tearDown(): void {
+		parent::tearDown();
+
+		unset($this->Flash);
 	}
 
 	/**
@@ -96,17 +107,6 @@ class FlashHelperTest extends TestCase {
 <div class="custom-info foo">I am sth custom</div>
 ';
 		$this->assertEquals($expected, $result);
-	}
-
-	/**
-	 * TearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		parent::tearDown();
-
-		unset($this->Flash);
 	}
 
 }

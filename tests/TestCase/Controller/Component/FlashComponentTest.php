@@ -13,28 +13,27 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @var \TestApp\Controller\FlashComponentTestController
 	 */
-	public $Controller;
+	protected $Controller;
 
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->Controller = new FlashComponentTestController(new ServerRequest());
 		$this->Controller->startupProcess();
 
-		$this->Controller->request->getSession()->delete('Flash');
+		$this->Controller->getRequest()->getSession()->delete('Flash');
 		Configure::delete('TransientFlash');
 	}
 
 	/**
 	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
-		unset($this->Controller->Flash);
 		unset($this->Controller);
 	}
 
@@ -56,7 +55,7 @@ class FlashComponentTest extends TestCase {
 	public function testMessage() {
 		$this->Controller->Flash->message('efg');
 
-		$res = $this->Controller->request->getSession()->read('Flash.flash');
+		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 
 		$this->assertSame('efg', $res[0]['message']);
@@ -70,7 +69,7 @@ class FlashComponentTest extends TestCase {
 	public function testMagic() {
 		$this->Controller->Flash->error('Some Error Message');
 
-		$res = $this->Controller->request->getSession()->read('Flash.flash');
+		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 
 		$this->assertSame('Some Error Message', $res[0]['message']);
@@ -84,7 +83,7 @@ class FlashComponentTest extends TestCase {
 	public function testCoreHook() {
 		$this->Controller->Flash->set('Some Message');
 
-		$res = $this->Controller->request->getSession()->read('Flash.flash');
+		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 		$this->assertSame('info', $res[0]['type']);
 		$this->assertSame('Some Message', $res[0]['message']);
@@ -97,7 +96,7 @@ class FlashComponentTest extends TestCase {
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
 		$this->Controller->Flash->success('yeah');
-		$this->Controller->request->getSession()->write('Foo', 'bar');
+		$this->Controller->getRequest()->getSession()->write('Foo', 'bar');
 		$this->Controller->Flash->transientMessage('xyz', 'warning');
 
 		$event = new Event('Controller.startup', $this->Controller);
@@ -125,7 +124,7 @@ class FlashComponentTest extends TestCase {
 			],
 		]);
 
-		$res = $this->Controller->request->getSession()->read('Flash.flash');
+		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
 		$this->assertTrue(!empty($res));
 
 		$this->assertSame('efg', $res[0]['message']);

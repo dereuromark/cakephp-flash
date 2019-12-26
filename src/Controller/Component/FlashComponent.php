@@ -104,7 +104,7 @@ class FlashComponent extends CakeFlashComponent {
 	 *
 	 * @return void
 	 */
-	public function set($message, array $options = []) {
+	public function set($message, array $options = []): void {
 		$options = $this->_mergeOptions($options);
 		$options += $this->getConfig();
 

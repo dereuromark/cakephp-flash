@@ -12,8 +12,10 @@ use Cake\Controller\Controller;
 class FlashComponentTestController extends Controller {
 
 	/**
-	 * @var array
+	 * @return void
 	 */
-	public $components = ['Flash.Flash'];
+	public function initialize(): void {
+		$this->loadComponent('Flash.Flash');
+	}
 
 }
