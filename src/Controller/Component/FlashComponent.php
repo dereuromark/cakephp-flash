@@ -61,7 +61,7 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		$ajaxMessages = array_merge_recursive(
-			(array)$controller->getRequest()->getSession()->consume('Flash'),
+			(array)$this->getSession()->consume('Flash'),
 			(array)Configure::consume('TransientFlash')
 		);
 
@@ -78,6 +78,8 @@ class FlashComponent extends CakeFlashComponent {
 
 		// The header can be read with JavaScript and the flash messages can be displayed
 		$this->getController()->setResponse($controller->getResponse()->withHeader($headerKey, json_encode($array)));
+
+		return null;
 	}
 
 	/**
@@ -127,7 +129,7 @@ class FlashComponent extends CakeFlashComponent {
 
 		$messages = [];
 		if ($options['clear'] === false) {
-			$messages = (array)$this->_session->read('Flash.' . $options['key']);
+			$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
 		}
 
 		$messages[] = [
@@ -138,7 +140,7 @@ class FlashComponent extends CakeFlashComponent {
 			'params' => $options['params'],
 		];
 
-		$this->_session->write('Flash.' . $options['key'], $messages);
+		$this->getSession()->write('Flash.' . $options['key'], $messages);
 	}
 
 	/**
@@ -177,11 +179,11 @@ class FlashComponent extends CakeFlashComponent {
 	 * @return void
 	 */
 	protected function _assertSessionStackSize(array $options) {
-		$messages = (array)$this->_session->read('Flash.' . $options['key']);
+		$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
 		if ($messages && count($messages) > $this->getConfig('limit')) {
 			array_shift($messages);
 		}
-		$this->_session->write('Flash.' . $options['key'], $messages);
+		$this->getSession()->write('Flash.' . $options['key'], $messages);
 	}
 
 	/**
