@@ -46,7 +46,7 @@ class FlashComponentTest extends TestCase {
 		$res = Configure::read('TransientFlash.flash');
 		$this->assertTrue(!empty($res));
 		$this->assertSame('success', $res[0]['type']);
-		$this->assertSame('Flash/success', $res[0]['element']);
+		$this->assertSame('flash/success', $res[0]['element']);
 	}
 
 	/**
@@ -60,7 +60,7 @@ class FlashComponentTest extends TestCase {
 
 		$this->assertSame('efg', $res[0]['message']);
 		$this->assertSame('info', $res[0]['type']);
-		$this->assertSame('Flash/info', $res[0]['element']);
+		$this->assertSame('flash/info', $res[0]['element']);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class FlashComponentTest extends TestCase {
 
 		$this->assertSame('Some Error Message', $res[0]['message']);
 		$this->assertSame('error', $res[0]['type']);
-		$this->assertSame('Flash/error', $res[0]['element']);
+		$this->assertSame('flash/error', $res[0]['element']);
 	}
 
 	/**
@@ -129,7 +129,7 @@ class FlashComponentTest extends TestCase {
 
 		$this->assertSame('efg', $res[0]['message']);
 		$this->assertSame('error', $res[0]['type']);
-		$this->assertSame('Flash/error', $res[0]['element']);
+		$this->assertSame('flash/error', $res[0]['element']);
 		$this->assertFalse($res[0]['params']['escape']);
 	}
 

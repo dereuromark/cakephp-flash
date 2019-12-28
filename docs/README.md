@@ -95,7 +95,7 @@ order | Order of output, types default to `['error', 'warning', 'success', 'info
 ### Flash layouts
 You should have `default.ctp`, `error.ctp`, `warning.ctp`, `success.ctp`, and `info.ctp` templates.
 
-The `src/Template/Element/Flash/error.ctp` could look like this:
+The `src/Template/Element/flash/error.ctp` could look like this:
 ```html
 <?php
 if (!isset($params['escape']) || $params['escape'] !== false) {
@@ -104,4 +104,4 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 ?>
 <div class="alert alert-danger"><?= $message ?></div>
 ```
-You can copy and adjust the existing ones from the `tests/TestApp/Template/Element/Flash/` folder (bootstrap) or from the cakephp/app repo (foundation).
+You can copy and adjust the existing ones from the `tests/TestApp/Template/Element/flash/` folder (bootstrap) or from the cakephp/app repo (foundation).
