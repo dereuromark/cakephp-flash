@@ -27,7 +27,6 @@ class FlashComponent extends CakeFlashComponent {
 	 * @var array
 	 */
 	protected $_defaultConfigExt = [
-		'headerKey' => 'X-Flash', // Set to empty string to deactivate AJAX response
 		'limit' => 10, // Max message limit per key - first in, first out
 	];
 
@@ -55,10 +54,12 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		$headerKey = $this->getConfig('headerKey');
-		if (!$headerKey) {
-			return null;
-		}
+        if (!in_array('yes', array_map( // case insensitive
+            'strtolower',
+            $this->getController()->getResponse()->getHeader('X-Get-Flash')
+        ), true)) {
+            return null;
+        }
 
 		$ajaxMessages = array_merge_recursive(
 			(array)$this->getSession()->consume('Flash'),
@@ -77,7 +78,7 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$this->getController()->setResponse($controller->getResponse()->withHeader($headerKey, json_encode($array)));
+		$this->getController()->setResponse($controller->getResponse()->withHeader('X-Flash', json_encode($array)));
 
 		return null;
 	}

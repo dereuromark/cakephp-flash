@@ -74,6 +74,10 @@ The following would only render (and remove) the error messages:
 <?= $this->Flash->render('flash', ['types' => ['error']]) ?>
 ```
 
+### Use in AJAX requests
+
+Set the request header `X-Get-Flash: yes` in your AJAX calls to receive a json encoded response in the `X-Flash` with an array of flash messages (each flash message contains a message key, a type key and params key):
+
 ## Customization
 
 ### Component Options
@@ -81,7 +85,6 @@ The following would only render (and remove) the error messages:
 Option |Description
 :----- | :----------
 limit | Max message limit per key (first in, first out), defaults to `10`.
-headerKey | Header key for AJAX responses, set to empty string to deactivate AJAX response.
 
 as well as the CakePHP core component options.
 
