@@ -54,12 +54,12 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-        if (!in_array('yes', array_map( // case insensitive
-            'strtolower',
-            $this->getController()->getResponse()->getHeader('X-Get-Flash')
-        ), true)) {
-            return null;
-        }
+		if (!in_array('yes', array_map( // case insensitive
+			'strtolower',
+			$controller->getRequest()->getHeader('X-Get-Flash')
+		), true)) {
+			return null;
+		}
 
 		$ajaxMessages = array_merge_recursive(
 			(array)$this->getSession()->consume('Flash'),
