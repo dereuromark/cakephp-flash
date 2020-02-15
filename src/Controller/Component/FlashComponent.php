@@ -59,15 +59,15 @@ class FlashComponent extends CakeFlashComponent {
 
 		if (is_array($transientFlash) && is_array($transientFlash[$this->getConfig('key')])) {
 		    $ajaxMessages = $transientFlash[$this->getConfig('key')];
-        }
+		}
 
 		$array = [];
 		foreach ($ajaxMessages as $message) {
-            $array[] = [
-                'message' => $message['message'] ?? null,
-                'type' => $message['type'] ?? null,
-                'params' => $message['params'] ?? null,
-            ];
+			$array[] = [
+				'message' => $message['message'] ?? null,
+				'type' => $message['type'] ?? null,
+				'params' => $message['params'] ?? null,
+			];
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed

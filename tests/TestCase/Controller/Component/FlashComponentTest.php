@@ -104,8 +104,8 @@ class FlashComponentTest extends TestCase {
 		$result = $this->Controller->getResponse()->getHeaders();
 		$expected = [
 			'Content-Type' => ['text/html'],
-            'X-Flash' => ['[{"message":"xyz","type":"warning","params":[]}]'],
-        ];
+			'X-Flash' => ['[{"message":"xyz","type":"warning","params":[]}]'],
+		];
 		$this->assertSame($expected, $result);
 	}
 
