@@ -169,7 +169,7 @@ class FlashHelper extends Helper {
 			throw new BadMethodCallException('Method does not exist. Select a type e.g. addTransientInfo.');
 		}
 
-		if (!strpos($name, 'addTransient') === 0) {
+		if (strpos($name, 'addTransient') !== 0) {
 			throw new BadMethodCallException('Method does not exist.');
 		}
 
