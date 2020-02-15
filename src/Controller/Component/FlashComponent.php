@@ -2,10 +2,13 @@
 
 namespace Flash\Controller\Component;
 
+use BadMethodCallException;
 use Cake\Controller\ComponentRegistry;
 use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\Http\Exception\InternalErrorException;
+use Cake\Utility\Inflector;
 use Exception;
 
 /**
@@ -20,6 +23,14 @@ use Exception;
  * @method void error(string $message, array $options = []) Set a message using "error" element
  * @method void warning(string $message, array $options = []) Set a message using "warning" element
  * @method void info(string $message, array $options = []) Set a message using "info" element
+ * @method void transientSuccess(string $message, array $options = []) Set a message using "success" element.
+ *                                                                      These flash messages that are not saved (only available for current view)
+ * @method void transientError(string $message, array $options = []) Set a message using "error" element.
+ *                                                                      These flash messages that are not saved (only available for current view)
+ * @method void transientWarning(string $message, array $options = []) Set a message using "warning" element
+ *                                                                      These flash messages that are not saved (only available for current view)
+ * @method void transientInfo(string $message, array $options = []) Set a message using "info" element
+ *                                                                      These flash messages that are not saved (only available for current view)
  */
 class FlashComponent extends CakeFlashComponent {
 
@@ -57,8 +68,10 @@ class FlashComponent extends CakeFlashComponent {
 		$ajaxMessages = [];
 		$transientFlash = (array)Configure::read('TransientFlash');
 
-		if (is_array($transientFlash) && is_array($transientFlash[$this->getConfig('key')])) {
-		    $ajaxMessages = $transientFlash[$this->getConfig('key')];
+		if (!empty($transientFlash[$this->getConfig('key')])
+			&& is_array($transientFlash[$this->getConfig('key')])
+		) {
+			$ajaxMessages = $transientFlash[$this->getConfig('key')];
 		}
 
 		$array = [];
@@ -113,7 +126,7 @@ class FlashComponent extends CakeFlashComponent {
 			$options['params']['escape'] = $options['escape'];
 		}
 
-		list($plugin, $element) = pluginSplit($options['element']);
+		[$plugin, $element] = pluginSplit($options['element']);
 
 		if ($plugin) {
 			$options['element'] = $plugin . '.flash/' . $element;
@@ -192,7 +205,7 @@ class FlashComponent extends CakeFlashComponent {
 	public function transientMessage($message, $options = null) {
 		$options = $this->_mergeOptions($options);
 
-		list($plugin, $element) = pluginSplit($options['element']);
+		[$plugin, $element] = pluginSplit($options['element']);
 
 		if ($plugin) {
 			$options['element'] = $plugin . '.flash/' . $element;
@@ -235,6 +248,47 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		return $options;
+	}
+
+	/**
+	 * @inheritDoc
+	 * handles Flash->type (e.g. success, error) or ->transientType (e.g. transientSuccess, transientError)
+	 */
+	public function __call(string $name, array $args): void {
+		if ($name === 'transient') {
+			throw new BadMethodCallException('Method transient does not exist. Select a type e.g. transientInfo.');
+		}
+
+		$transient = false;
+		if (strpos($name, 'transient') === 0) {
+			$transient = true;
+			$name = substr($name, 9); // remove transient
+			$type = lcfirst($name);
+
+			if (count($args) < 1) {
+				throw new InternalErrorException('Flash message missing.');
+			}
+		} else {
+			$type = $name;
+		}
+
+		$element = Inflector::underscore($name);
+
+		$options = ['element' => $element, 'type' => $type];
+
+		if (!empty($args[1])) {
+			if (!empty($args[1]['plugin'])) {
+				$options = ['element' => $args[1]['plugin'] . '.' . $element];
+				unset($args[1]['plugin']);
+			}
+			$options += (array)$args[1];
+		}
+
+		if ($transient) {
+			$this->transientMessage($args[0], $options);
+		} else {
+			$this->set($args[0], $options);
+		}
 	}
 
 }

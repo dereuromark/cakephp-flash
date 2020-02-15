@@ -52,14 +52,19 @@ $this->Flash->error('Oh <b>NO</b>', ['escape' => false]);
 ```
 For transient messages:
 ```php
-$this->Flash->transientMessage('I am not persisted in session');
+$this->Flash->transientSuccess('I am not persisted in session');
+$this->Flash->transientError('I am not persisted in session');
+$this->Flash->transientInfo('I am not persisted in session');
+$this->Flash->transientWarning('I am not persisted in session');
 ```
 
 In your view you can also add transient flash messages:
 
 ```php
-$this->Flash->addTransientMessage('Only for this request');
-$this->Flash->addTransientMessage('Oh oh', ['type' => 'error']);
+$this->Flash->addTransientSuccess('I am not persisted in session');
+$this->Flash->addTransientError('I am not persisted in session');
+$this->Flash->addTransientMessage('Oh oh', ['type' => 'custom']);
+
 ```
 Note: Do not try to add anything in the layout below the `render()` call as that would not be included anymore.
 
