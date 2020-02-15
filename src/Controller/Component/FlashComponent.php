@@ -54,16 +54,31 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		if (!in_array('yes', array_map( // case insensitive
+		$ajaxMessages = (array)Configure::read('TransientFlash');
+
+		if (in_array(['all', 'session'], array_map( // case insensitive
 			'strtolower',
 			$controller->getRequest()->getHeader('X-Get-Flash')
 		), true)) {
-			return null;
+            $ajaxMessages = array_merge_recursive(
+                $ajaxMessages,
+                (array)$this->getSession()->consume('Flash'),
+            );
 		}
 
-		$ajaxMessages = array_merge_recursive(
+        if (in_array(['all', 'transient'], array_map( // case insensitive
+            'strtolower',
+            $controller->getRequest()->getHeader('X-Get-Flash')
+        ), true)) {
+            $ajaxMessages = array_merge_recursive(
+                $ajaxMessages,
+                (array)$this->getSession()->consume('Flash'),
+            );
+        }
+
+        $ajaxMessages = array_merge_recursive(
 			(array)$this->getSession()->consume('Flash'),
-			(array)Configure::consume('TransientFlash')
+			(array)Configure::read('TransientFlash')
 		);
 
 		$array = [];
