@@ -54,42 +54,20 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		$ajaxMessages = (array)Configure::read('TransientFlash');
+		$ajaxMessages = [];
+		$transientFlash = (array)Configure::read('TransientFlash');
 
-		if (in_array(['all', 'session'], array_map( // case insensitive
-			'strtolower',
-			$controller->getRequest()->getHeader('X-Get-Flash')
-		), true)) {
-            $ajaxMessages = array_merge_recursive(
-                $ajaxMessages,
-                (array)$this->getSession()->consume('Flash'),
-            );
-		}
-
-        if (in_array(['all', 'transient'], array_map( // case insensitive
-            'strtolower',
-            $controller->getRequest()->getHeader('X-Get-Flash')
-        ), true)) {
-            $ajaxMessages = array_merge_recursive(
-                $ajaxMessages,
-                (array)$this->getSession()->consume('Flash'),
-            );
+		if (is_array($transientFlash) && is_array($transientFlash[$this->getConfig('key')])) {
+		    $ajaxMessages = $transientFlash[$this->getConfig('key')];
         }
 
-        $ajaxMessages = array_merge_recursive(
-			(array)$this->getSession()->consume('Flash'),
-			(array)Configure::read('TransientFlash')
-		);
-
 		$array = [];
-		foreach ($ajaxMessages as $key => $stack) {
-			foreach ($stack as $message) {
-				$array[$key][] = [
-					'message' => $message['message'],
-					'type' => $message['type'],
-					'params' => $message['params'],
-				];
-			}
+		foreach ($ajaxMessages as $message) {
+            $array[] = [
+                'message' => $message['message'] ?? null,
+                'type' => $message['type'] ?? null,
+                'params' => $message['params'] ?? null,
+            ];
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
