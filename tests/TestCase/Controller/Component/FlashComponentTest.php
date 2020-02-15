@@ -104,21 +104,8 @@ class FlashComponentTest extends TestCase {
 		$result = $this->Controller->getResponse()->getHeaders();
 		$expected = [
 			'Content-Type' => ['text/html'],
-		];
-		$this->assertSame($expected, $result);
-
-		$this->Controller->setRequest($this->Controller->getRequest()->withHeader('X-Get-Flash', 'YeS'));
-
-		$this->Controller->Flash->success('yes2');
-		$this->Controller->Flash->transientMessage('xyz', 'warning');
-		$event = new Event('Controller.startup', $this->Controller);
-		$this->Controller->Flash->beforeRender($event);
-
-		$result = $this->Controller->getResponse()->getHeaders();
-		$expected = [
-			'Content-Type' => ['text/html'],
-			'X-Flash' => ['{"flash":[{"message":"yes1","type":"success","params":[]},{"message":"yes2","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]},{"message":"xyz","type":"warning","params":[]}]}'],
-		];
+            'X-Flash' => ['[{"message":"xyz","type":"warning","params":[]}]'],
+        ];
 		$this->assertSame($expected, $result);
 	}
 

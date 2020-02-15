@@ -76,12 +76,12 @@ The following would only render (and remove) the error messages:
 
 ### Use in AJAX requests
 
-Set the request header `X-Get-Flash: yes` in your AJAX calls to receive a json encoded response in the `X-Flash` with an array of keys containing an array of messages (each flash message contains a message key, a type key and params key):
+AJAX calls will respond with a JSON encoded array of messages (each item containing a message key, a type key and params key) within the `X-Flash` header.
 
 Example of how to handle AJAX flash messages:
 ```
-    if(jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) == 'object' && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')).flash != 'undefined') {
-        const flash = JSON.parse(jqXHR.getResponseHeader('X-Flash')).flash[0];
+    if(jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) == 'object' && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) != 'undefined') {
+        const flash = JSON.parse(jqXHR.getResponseHeader('X-Flash'))[0];
         customFunctionToNotifyFlashMessages(flash.message, flash.type);
     }
 ```
