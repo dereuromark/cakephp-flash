@@ -83,9 +83,9 @@ class FlashHelperTest extends TestCase {
 	 * @return void
 	 */
 	public function testFlashWithTypes() {
-		$this->Flash->addTransientMessage('I am an error', 'error');
+		$this->Flash->addTransientError('I am an error');
 		$this->Flash->addTransientMessage('I am a warning', 'warning');
-		$this->Flash->addTransientMessage('I am some info', 'info');
+		$this->Flash->addTransientInfo('I am some info');
 		$this->Flash->addTransientMessage('I am also some info');
 		$this->Flash->addTransientMessage('I am sth custom', 'custom');
 		$this->Flash->addTransientMessage('I am sth custom', ['type' => 'custom', 'params' => ['class' => 'foo']]);

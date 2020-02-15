@@ -2,13 +2,23 @@
 
 namespace Flash\View\Helper;
 
+use BadMethodCallException;
 use Cake\Core\Configure;
+use Cake\Http\Exception\InternalErrorException;
 use Cake\View\Helper;
 
 /**
  * Flash helper
  *
  * @author Mark Scherer
+ * @method void addTransientSuccess(string $message, array $options = []) Set a message using "success" element.
+ *                                                                      These flash messages that are not saved (only available for current view)
+ * @method void addTransientError(string $message, array $options = []) Set a message using "error" element.
+ *                                                                      These flash messages that are not saved (only available for current view)
+ * @method void addTransientWarning(string $message, array $options = []) Set a message using "warning" element
+ *                                                                      These flash messages that are not saved (only available for current view)
+ * @method void addTransientInfo(string $message, array $options = []) Set a message using "info" element
+ *                                                                      These flash messages that are not saved (only available for current view)
  */
 class FlashHelper extends Helper {
 
@@ -135,7 +145,7 @@ class FlashHelper extends Helper {
 	 * @param array|string|null $options
 	 * @return void
 	 */
-	public function addTransientMessage($message, $options = null) {
+	public function addTransientMessage($message, $options = null): void {
 		$options = $this->_mergeOptions($options);
 		$options['message'] = $message;
 
@@ -145,6 +155,34 @@ class FlashHelper extends Helper {
 		}
 		$messages[] = $options;
 		Configure::write('TransientFlash.' . $options['key'], $messages);
+	}
+
+	/**
+	 * Add a message on the fly
+	 *
+	 * @param string $name name
+	 * @param array $args method arguments
+	 * @return void
+	 */
+	public function __call(string $name, array $args): void {
+		if ($name === 'addTransient') {
+			throw new BadMethodCallException('Method does not exist. Select a type e.g. addTransientInfo.');
+		}
+
+		if (!strpos($name, 'addTransient') === 0) {
+			throw new BadMethodCallException('Method does not exist.');
+		}
+
+		$name = substr($name, 12); // remove addTransient
+		$type = lcfirst($name);
+
+		if (count($args) < 1) {
+			throw new InternalErrorException('Flash message missing.');
+		}
+
+		$options['type'] = $type;
+
+		$this->addTransientMessage($args[0], $options);
 	}
 
 	/**
@@ -168,7 +206,7 @@ class FlashHelper extends Helper {
 
 		$options += $this->getConfig();
 
-		list($plugin, $element) = pluginSplit($options['element']);
+		[$plugin, $element] = pluginSplit($options['element']);
 
 		if ($plugin) {
 			$options['element'] = $plugin . '.Flash/' . $element;
