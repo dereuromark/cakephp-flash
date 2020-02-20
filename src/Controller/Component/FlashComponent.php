@@ -24,13 +24,13 @@ use Exception;
  * @method void warning(string $message, array $options = []) Set a message using "warning" element
  * @method void info(string $message, array $options = []) Set a message using "info" element
  * @method void transientSuccess(string $message, array $options = []) Set a message using "success" element.
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  * @method void transientError(string $message, array $options = []) Set a message using "error" element.
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  * @method void transientWarning(string $message, array $options = []) Set a message using "warning" element
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  * @method void transientInfo(string $message, array $options = []) Set a message using "info" element
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  */
 class FlashComponent extends CakeFlashComponent {
 
@@ -195,7 +195,7 @@ class FlashComponent extends CakeFlashComponent {
 
 	/**
 	 * Adds a transient flash message.
-	 * These flash messages that are not saved (only available for current view),
+	 * These flash messages are not persisted across requests (only available for current view),
 	 * will be merged into the session flash ones prior to output.
 	 *
 	 * @param string $message Message to output.
