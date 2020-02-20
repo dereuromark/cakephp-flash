@@ -12,13 +12,13 @@ use Cake\View\Helper;
  *
  * @author Mark Scherer
  * @method void addTransientSuccess(string $message, array $options = []) Set a message using "success" element.
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  * @method void addTransientError(string $message, array $options = []) Set a message using "error" element.
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  * @method void addTransientWarning(string $message, array $options = []) Set a message using "warning" element
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  * @method void addTransientInfo(string $message, array $options = []) Set a message using "info" element
- *                                                                      These flash messages that are not saved (only available for current view)
+ *   These flash messages are not persisted across requests (only available for current view)
  */
 class FlashHelper extends Helper {
 
