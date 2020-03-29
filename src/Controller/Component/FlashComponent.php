@@ -38,6 +38,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	protected $_defaultConfigExt = [
 		'limit' => 10, // Max message limit per key - first in, first out
+		'headerKey' => 'X-Flash', // Set to empty string to disable headers for AJAX requests.
 		'noSessionOnAjax' => true, // Set to false to disable auto-writing flash calls from normal flash() usage into transient collection on AJAX requests
 	];
 
@@ -61,12 +62,15 @@ class FlashComponent extends CakeFlashComponent {
 		/** @var \Cake\Controller\Controller $controller */
 		$controller = $event->getSubject();
 
-		if (!$controller->getRequest()->is('ajax')) {
+		if (!$this->getConfig('headerKey') || !$controller->getRequest()->is('ajax')) {
 			return null;
 		}
 
 		$key = $this->getConfig('key');
 		$flashMessages = $this->getFlashMessages($key);
+		if (!$flashMessages) {
+			return null;
+		}
 
 		$array = [];
 		foreach ($flashMessages as $flashMessage) {
@@ -78,7 +82,7 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$this->getController()->setResponse($controller->getResponse()->withHeader('X-' . ucfirst($key), json_encode($array)));
+		$this->getController()->setResponse($controller->getResponse()->withHeader($this->getConfig('headerKey'), json_encode($array)));
 
 		return null;
 	}

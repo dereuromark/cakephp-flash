@@ -124,6 +124,7 @@ if (messages) {
 Option |Description
 :----- | :----------
 limit | Max message limit per key (first in, first out), defaults to `10`.
+headerKey | Header key for AJAX responses, set to empty string to deactivate AJAX response.
 noSessionOnAjax | Set to `false` to write normal session flash messages in AJAX case. They will be ignored, though.
 
 as well as the CakePHP core component options.
