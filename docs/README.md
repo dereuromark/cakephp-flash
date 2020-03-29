@@ -61,11 +61,11 @@ $this->Flash->transientWarning('I am not persisted in session');
 In your view you can also add transient flash messages:
 
 ```php
-$this->Flash->addTransientSuccess('I am not persisted in session');
-$this->Flash->addTransientError('I am not persisted in session');
-$this->Flash->addTransientMessage('Oh oh', ['type' => 'custom']);
-
+$this->Flash->transientSuccess('I am not persisted in session');
+$this->Flash->transientError('I am not persisted in session');
+$this->Flash->transientMessage('Oh oh', ['type' => 'custom']);
 ```
+
 Note: Do not try to add anything in the layout below the `render()` call as that would not be included anymore.
 
 If you want to just output a message anywhere in your template (like a warning block):
@@ -74,7 +74,7 @@ echo $this->message('Hey, I am an info block');
 ```
 
 ### Rendering each type in a separate process
-The following would only render (and remove) the error messages:
+The following would only render (and consume) the error messages:
 ```php
 <?= $this->Flash->render('flash', ['types' => ['error']]) ?>
 ```
@@ -120,7 +120,7 @@ order | Order of output, types default to `['error', 'warning', 'success', 'info
 ### Flash layouts
 You should have `default.php`, `error.php`, `warning.php`, `success.php`, and `info.php` templates.
 
-The `src/Template/Element/flash/error.php` could look like this:
+The `templates/element/flash/error.php` could look like this:
 ```html
 <?php
 if (!isset($params['escape']) || $params['escape'] !== false) {
@@ -129,4 +129,4 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 ?>
 <div class="alert alert-danger"><?= $message ?></div>
 ```
-You can copy and adjust the existing ones from the `tests/TestApp/Template/Element/flash/` folder (bootstrap) or from the cakephp/app repo (foundation).
+You can copy and adjust the existing ones from the `tests/TestApp/templates/element/flash/` folder (bootstrap) or from the cakephp/app repo (foundation).

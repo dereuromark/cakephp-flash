@@ -6,7 +6,7 @@ use BadMethodCallException;
 use Cake\Controller\ComponentRegistry;
 use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
 use Cake\Core\Configure;
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
 use Cake\Http\Exception\InternalErrorException;
 use Cake\Utility\Inflector;
 use Exception;
@@ -54,10 +54,10 @@ class FlashComponent extends CakeFlashComponent {
 	 * Called after the Controller::beforeRender(), after the view class is loaded, and before the
 	 * Controller::render()
 	 *
-	 * @param \Cake\Event\Event $event
+	 * @param \Cake\Event\EventInterface $event
 	 * @return \Cake\Http\Response|null
 	 */
-	public function beforeRender(Event $event) {
+	public function beforeRender(EventInterface $event) {
 		/** @var \Cake\Controller\Controller $controller */
 		$controller = $event->getSubject();
 
@@ -65,7 +65,8 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		$flashMessages = $this->getFlashMessages();
+		$key = $this->getConfig('key');
+		$flashMessages = $this->getFlashMessages($key);
 
 		$array = [];
 		foreach ($flashMessages as $flashMessage) {
@@ -77,23 +78,24 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$this->getController()->setResponse($controller->getResponse()->withHeader('X-Flash', json_encode($array)));
+		$this->getController()->setResponse($controller->getResponse()->withHeader('X-' . ucfirst($key), json_encode($array)));
 
 		return null;
 	}
 
 	/**
+	 * @param string $key
+	 *
 	 * @return array
 	 */
-	protected function getFlashMessages(): array
-	{
+	protected function getFlashMessages(string $key): array {
 		$flashMessages = [];
 		$transientFlash = (array)Configure::read('TransientFlash');
 
-		if (!empty($transientFlash[$this->getConfig('key')])
-			&& is_array($transientFlash[$this->getConfig('key')])
+		if (!empty($transientFlash[$key])
+			&& is_array($transientFlash[$key])
 		) {
-			$flashMessages = $transientFlash[$this->getConfig('key')];
+			$flashMessages = $transientFlash[$key];
 		}
 
 		return $flashMessages;
@@ -103,11 +105,11 @@ class FlashComponent extends CakeFlashComponent {
 	 * Adds a flash message.
 	 * Updates "messages" session content (to enable multiple messages of one type).
 	 *
-	 * @param string $message Message to output.
+	 * @param string|\Exception $message Message to output.
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function message($message, $options = null) {
+	public function message($message, $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		$this->set($message, $options);
@@ -165,7 +167,7 @@ class FlashComponent extends CakeFlashComponent {
 	 *
 	 * @return array
 	 */
-	protected function _mergeOptions($options) {
+	protected function _mergeOptions($options): array {
 		if (!is_array($options)) {
 			$type = $options;
 			if (!$type) {
@@ -195,7 +197,7 @@ class FlashComponent extends CakeFlashComponent {
 	 *
 	 * @return void
 	 */
-	protected function _assertSessionStackSize(array $options) {
+	protected function _assertSessionStackSize(array $options): void {
 		$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
 		if ($messages && count($messages) > $this->getConfig('limit')) {
 			array_shift($messages);
@@ -266,7 +268,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	public function __call(string $name, array $args): void {
 		if ($name === 'transient') {
-			throw new BadMethodCallException('Method transient does not exist. Select a type e.g. transientInfo.');
+			throw new BadMethodCallException('Method transient() does not exist. Select a type e.g. transientInfo().');
 		}
 
 		$transient = false;
@@ -304,8 +306,7 @@ class FlashComponent extends CakeFlashComponent {
 	/**
 	 * @return bool
 	 */
-	protected function ajaxHandling(): bool
-	{
+	protected function ajaxHandling(): bool {
 		if (!$this->getConfig('noSessionOnAjax')) {
 			return false;
 		}

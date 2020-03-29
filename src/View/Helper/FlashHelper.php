@@ -11,13 +11,13 @@ use Cake\View\Helper;
  * Flash helper
  *
  * @author Mark Scherer
- * @method void addTransientSuccess(string $message, array $options = []) Set a message using "success" element.
+ * @method void transientSuccess(string $message, array $options = []) Set a message using "success" element.
  *   These flash messages are not persisted across requests (only available for current view)
- * @method void addTransientError(string $message, array $options = []) Set a message using "error" element.
+ * @method void transientError(string $message, array $options = []) Set a message using "error" element.
  *   These flash messages are not persisted across requests (only available for current view)
- * @method void addTransientWarning(string $message, array $options = []) Set a message using "warning" element
+ * @method void transientWarning(string $message, array $options = []) Set a message using "warning" element
  *   These flash messages are not persisted across requests (only available for current view)
- * @method void addTransientInfo(string $message, array $options = []) Set a message using "info" element
+ * @method void transientInfo(string $message, array $options = []) Set a message using "info" element
  *   These flash messages are not persisted across requests (only available for current view)
  */
 class FlashHelper extends Helper {
@@ -48,7 +48,7 @@ class FlashHelper extends Helper {
 	 *   in session.
 	 * @throws \UnexpectedValueException If value for flash settings key is not an array.
 	 */
-	public function render($key = 'flash', array $options = []) {
+	public function render(string $key = 'flash', array $options = []): ?string {
 		$options += ['types' => []];
 
 		// Get the messages from the session
@@ -61,24 +61,28 @@ class FlashHelper extends Helper {
 
 		$html = '';
 		foreach ($messages as $message) {
-			if ($options['types'] && !in_array($message['type'], $options['types'])) {
+			if ($options['types'] && !in_array($message['type'], $options['types'], true)) {
 				continue;
 			}
 
 			$message = $options + $message;
-			$html .= $this->_View->element($message['element'], $message);
+			$options += [
+				'plugin' => false,
+			];
+
+			$html .= $this->_View->element($message['element'], $message, $options);
 		}
 
 		if ($options['types']) {
 			$messages = (array)$this->_View->getRequest()->getSession()->read('Flash.' . $key);
 			foreach ($messages as $index => $message) {
-				if (!in_array($message['type'], $options['types'])) {
+				if (!in_array($message['type'], $options['types'], true)) {
 					continue;
 				}
 				$this->_View->getRequest()->getSession()->delete('Flash.' . $key . '.' . $index);
 			}
 			foreach ($transientMessages as $index => $message) {
-				if (!in_array($message['type'], $options['types'])) {
+				if (!in_array($message['type'], $options['types'], true)) {
 					continue;
 				}
 				Configure::delete('TransientFlash.' . $key . '.' . $index);
@@ -96,7 +100,7 @@ class FlashHelper extends Helper {
 	 * @param array $messages
 	 * @return array
 	 */
-	protected function _order($messages) {
+	protected function _order(array $messages): array {
 		$order = $this->getConfig('order');
 		if (!$order) {
 			return $messages;
@@ -127,15 +131,20 @@ class FlashHelper extends Helper {
 	 * Note that this does not use the Session.
 	 *
 	 * @param string $message String to output.
-	 * @param array|string|null $options Options
+	 * @param array|string|null $messageOptions Message options
+	 * @param array $options Element options
 	 *
 	 * @return string HTML
 	 */
-	public function message($message, $options = null) {
-		$options = $this->_mergeOptions($options);
-		$options['message'] = $message;
+	public function message(string $message, $messageOptions = null, array $options = []): string {
+		$messageOptions = $this->_mergeOptions($messageOptions);
+		$messageOptions['message'] = $message;
 
-		return $this->_View->element($options['element'], $options);
+		$options += [
+			'plugin' => false,
+		];
+
+		return $this->_View->element($messageOptions['element'], $messageOptions, $options);
 	}
 
 	/**
@@ -145,7 +154,7 @@ class FlashHelper extends Helper {
 	 * @param array|string|null $options
 	 * @return void
 	 */
-	public function addTransientMessage($message, $options = null): void {
+	public function transientMessage(string $message, $options = null): void {
 		$options = $this->_mergeOptions($options);
 		$options['message'] = $message;
 
@@ -162,18 +171,16 @@ class FlashHelper extends Helper {
 	 *
 	 * @param string $name name
 	 * @param array $args method arguments
+	 * @throws \BadMethodCallException
+	 * @throws \Cake\Http\Exception\InternalErrorException
 	 * @return void
 	 */
 	public function __call(string $name, array $args): void {
-		if ($name === 'addTransient') {
-			throw new BadMethodCallException('Method does not exist. Select a type e.g. addTransientInfo.');
+		if (strpos($name, 'transient') !== 0) {
+			throw new BadMethodCallException('Method does not exist. Select a type, e.g. transientInfo().');
 		}
 
-		if (strpos($name, 'addTransient') !== 0) {
-			throw new BadMethodCallException('Method does not exist.');
-		}
-
-		$name = substr($name, 12); // remove addTransient
+		$name = substr($name, 9); // remove "transient" prefix
 		$type = lcfirst($name);
 
 		if (count($args) < 1) {
@@ -182,7 +189,7 @@ class FlashHelper extends Helper {
 
 		$options['type'] = $type;
 
-		$this->addTransientMessage($args[0], $options);
+		$this->transientMessage($args[0], $options);
 	}
 
 	/**
@@ -190,7 +197,7 @@ class FlashHelper extends Helper {
 	 *
 	 * @return array
 	 */
-	protected function _mergeOptions($options) {
+	protected function _mergeOptions($options): array {
 		if (!is_array($options)) {
 			$type = $options;
 			if (!$type) {
@@ -201,17 +208,18 @@ class FlashHelper extends Helper {
 			];
 		}
 
-		$options += ['type' => 'info'];
-		$options += ['element' => $options['type']];
-
+		$options += [
+			'type' => 'info',
+			'element' => $options['type'],
+		];
 		$options += $this->getConfig();
 
 		[$plugin, $element] = pluginSplit($options['element']);
 
 		if ($plugin) {
-			$options['element'] = $plugin . '.Flash/' . $element;
+			$options['element'] = $plugin . '.flash/' . $element;
 		} else {
-			$options['element'] = 'Flash/' . $element;
+			$options['element'] = 'flash/' . $element;
 		}
 
 		return $options;
