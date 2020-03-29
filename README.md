@@ -20,5 +20,8 @@ This branch is for **CakePHP 4.0+**. See [version map](https://github.com/dereur
 - By default 4 types (one more): error, warning, success, info
 - Ordered output (error, warning, success, info) and output filtering per type
 
+## Demo
+See [sandbox demos](https://sandbox.dereuromark.de/sandbox/flash-examples).
+
 ## Documentation
 See [/docs](docs/README.md).
