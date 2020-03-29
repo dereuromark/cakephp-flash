@@ -52,15 +52,20 @@ $this->Flash->error('Oh <b>NO</b>', ['escape' => false]);
 ```
 For transient messages:
 ```php
-$this->Flash->transientMessage('I am not persisted in session');
+$this->Flash->transientSuccess('I am not persisted in session');
+$this->Flash->transientError('I am not persisted in session');
+$this->Flash->transientInfo('I am not persisted in session');
+$this->Flash->transientWarning('I am not persisted in session');
 ```
 
 In your view you can also add transient flash messages:
 
 ```php
-$this->Flash->addTransientMessage('Only for this request');
-$this->Flash->addTransientMessage('Oh oh', ['type' => 'error']);
+$this->Flash->transientSuccess('I am not persisted in session');
+$this->Flash->transientError('I am not persisted in session');
+$this->Flash->transientMessage('Oh oh', ['type' => 'custom']);
 ```
+
 Note: Do not try to add anything in the layout below the `render()` call as that would not be included anymore.
 
 If you want to just output a message anywhere in your template (like a warning block):
@@ -69,10 +74,30 @@ echo $this->message('Hey, I am an info block');
 ```
 
 ### Rendering each type in a separate process
-The following would only render (and remove) the error messages:
+The following would only render (and consume) the error messages:
 ```php
 <?= $this->Flash->render('flash', ['types' => ['error']]) ?>
 ```
+
+### Use in AJAX requests
+
+AJAX calls will respond with a JSON encoded array of messages (each item containing a message key, a type key and params key) within the `X-Flash` header.
+
+Example of how to handle AJAX flash messages:
+```
+    if(jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) == 'object' && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) != 'undefined') {
+        const flash = JSON.parse(jqXHR.getResponseHeader('X-Flash'))[0];
+        customFunctionToNotifyFlashMessages(flash.message, flash.type);
+    }
+```
+
+By default, only transient messages are included here, as they are without side effects.
+That said, the component auto-writes all normal flash message usage also into that collection.
+
+You can disable that setting `noSessionOnAjax` to `false` (as explained below). They will then be ignored and kept in the session
+after that request. So this is not advised.
+In general, session based flash messages are not without side effect. Other requests could also have put them into the
+session, creating messages/responses on the (wrong/unintended) views.
 
 ## Customization
 
@@ -81,7 +106,7 @@ The following would only render (and remove) the error messages:
 Option |Description
 :----- | :----------
 limit | Max message limit per key (first in, first out), defaults to `10`.
-headerKey | Header key for AJAX responses, set to empty string to deactivate AJAX response.
+noSessionOnAjax | Set to `false` to write normal session flash messages in AJAX case. They will be ignored, though.
 
 as well as the CakePHP core component options.
 
@@ -95,7 +120,7 @@ order | Order of output, types default to `['error', 'warning', 'success', 'info
 ### Flash layouts
 You should have `default.php`, `error.php`, `warning.php`, `success.php`, and `info.php` templates.
 
-The `src/Template/Element/flash/error.php` could look like this:
+The `templates/element/flash/error.php` could look like this:
 ```html
 <?php
 if (!isset($params['escape']) || $params['escape'] !== false) {
@@ -104,4 +129,4 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 ?>
 <div class="alert alert-danger"><?= $message ?></div>
 ```
-You can copy and adjust the existing ones from the `tests/TestApp/Template/Element/flash/` folder (bootstrap) or from the cakephp/app repo (foundation).
+You can copy and adjust the existing ones from the `tests/TestApp/templates/element/flash/` folder (bootstrap) or from the cakephp/app repo (foundation).

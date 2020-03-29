@@ -55,18 +55,18 @@ class FlashHelperTest extends TestCase {
 	 * @return void
 	 */
 	public function testRender() {
-		$this->Flash->addTransientMessage('Foo & bar', 'success');
+		$this->Flash->transientMessage('Foo & bar', 'success');
 
 		$result = $this->Flash->render();
 		$expected = '<div class="alert alert-success">Foo &amp; bar</div>
 ';
 		$this->assertEquals($expected, $result);
 
-		$this->Flash->addTransientMessage('I am an error', 'error');
-		$this->Flash->addTransientMessage('I am a warning', 'warning');
-		$this->Flash->addTransientMessage('I am some info', 'info');
-		$this->Flash->addTransientMessage('I am also some info');
-		$this->Flash->addTransientMessage('I am sth custom', 'custom');
+		$this->Flash->transientMessage('I am an error', 'error');
+		$this->Flash->transientMessage('I am a warning', 'warning');
+		$this->Flash->transientMessage('I am some info', 'info');
+		$this->Flash->transientMessage('I am also some info');
+		$this->Flash->transientMessage('I am sth custom', 'custom');
 
 		$result = $this->Flash->render();
 
@@ -83,12 +83,12 @@ class FlashHelperTest extends TestCase {
 	 * @return void
 	 */
 	public function testFlashWithTypes() {
-		$this->Flash->addTransientMessage('I am an error', 'error');
-		$this->Flash->addTransientMessage('I am a warning', 'warning');
-		$this->Flash->addTransientMessage('I am some info', 'info');
-		$this->Flash->addTransientMessage('I am also some info');
-		$this->Flash->addTransientMessage('I am sth custom', 'custom');
-		$this->Flash->addTransientMessage('I am sth custom', ['type' => 'custom', 'params' => ['class' => 'foo']]);
+		$this->Flash->transientError('I am an error');
+		$this->Flash->transientWarning('I am a warning');
+		$this->Flash->transientInfo('I am some info');
+		$this->Flash->transientMessage('I am also some info');
+		$this->Flash->transientMessage('I am sth custom', 'custom');
+		$this->Flash->transientMessage('I am sth custom', ['type' => 'custom', 'params' => ['class' => 'foo']]);
 
 		$result = $this->Flash->render('flash', ['types' => ['warning', 'error']]);
 		$expected = '<div class="alert alert-danger">I am an error</div>

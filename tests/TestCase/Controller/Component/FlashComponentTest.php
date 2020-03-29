@@ -94,18 +94,17 @@ class FlashComponentTest extends TestCase {
 	 */
 	public function testAjax() {
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-
-		$this->Controller->Flash->success('yeah');
 		$this->Controller->getRequest()->getSession()->write('Foo', 'bar');
-		$this->Controller->Flash->transientMessage('xyz', 'warning');
 
+		$this->Controller->Flash->success('my-yes');
+		$this->Controller->Flash->transientMessage('my-warning', 'warning');
 		$event = new Event('Controller.startup', $this->Controller);
 		$this->Controller->Flash->beforeRender($event);
 
 		$result = $this->Controller->getResponse()->getHeaders();
 		$expected = [
 			'Content-Type' => ['text/html'],
-			'X-Flash' => ['{"flash":[{"message":"yeah","type":"success","params":[]},{"message":"xyz","type":"warning","params":[]}]}'],
+			'X-Flash' => ['[{"message":"my-yes","type":"success","params":[]},{"message":"my-warning","type":"warning","params":[]}]'],
 		];
 		$this->assertSame($expected, $result);
 	}

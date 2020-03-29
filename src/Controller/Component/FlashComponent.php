@@ -2,10 +2,13 @@
 
 namespace Flash\Controller\Component;
 
+use BadMethodCallException;
 use Cake\Controller\ComponentRegistry;
 use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
 use Cake\Core\Configure;
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
+use Cake\Http\Exception\InternalErrorException;
+use Cake\Utility\Inflector;
 use Exception;
 
 /**
@@ -13,13 +16,20 @@ use Exception;
  * persistent and transient.
  *
  * @author Mark Scherer
- * @copyright 2014 Mark Scherer
  * @license MIT
  *
  * @method void success(string $message, array $options = []) Set a message using "success" element
  * @method void error(string $message, array $options = []) Set a message using "error" element
  * @method void warning(string $message, array $options = []) Set a message using "warning" element
  * @method void info(string $message, array $options = []) Set a message using "info" element
+ * @method void transientSuccess(string $message, array $options = []) Set a message using "success" element.
+ *   These flash messages are not persisted across requests (only available for current view)
+ * @method void transientError(string $message, array $options = []) Set a message using "error" element.
+ *   These flash messages are not persisted across requests (only available for current view)
+ * @method void transientWarning(string $message, array $options = []) Set a message using "warning" element
+ *   These flash messages are not persisted across requests (only available for current view)
+ * @method void transientInfo(string $message, array $options = []) Set a message using "info" element
+ *   These flash messages are not persisted across requests (only available for current view)
  */
 class FlashComponent extends CakeFlashComponent {
 
@@ -27,8 +37,8 @@ class FlashComponent extends CakeFlashComponent {
 	 * @var array
 	 */
 	protected $_defaultConfigExt = [
-		'headerKey' => 'X-Flash', // Set to empty string to deactivate AJAX response
 		'limit' => 10, // Max message limit per key - first in, first out
+		'noSessionOnAjax' => true, // Set to false to disable auto-writing flash calls from normal flash() usage into transient collection on AJAX requests
 	];
 
 	/**
@@ -44,10 +54,10 @@ class FlashComponent extends CakeFlashComponent {
 	 * Called after the Controller::beforeRender(), after the view class is loaded, and before the
 	 * Controller::render()
 	 *
-	 * @param \Cake\Event\Event $event
+	 * @param \Cake\Event\EventInterface $event
 	 * @return \Cake\Http\Response|null
 	 */
-	public function beforeRender(Event $event) {
+	public function beforeRender(EventInterface $event) {
 		/** @var \Cake\Controller\Controller $controller */
 		$controller = $event->getSubject();
 
@@ -55,42 +65,51 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		$headerKey = $this->getConfig('headerKey');
-		if (!$headerKey) {
-			return null;
-		}
-
-		$ajaxMessages = array_merge_recursive(
-			(array)$this->getSession()->consume('Flash'),
-			(array)Configure::consume('TransientFlash')
-		);
+		$key = $this->getConfig('key');
+		$flashMessages = $this->getFlashMessages($key);
 
 		$array = [];
-		foreach ($ajaxMessages as $key => $stack) {
-			foreach ($stack as $message) {
-				$array[$key][] = [
-					'message' => $message['message'],
-					'type' => $message['type'],
-					'params' => $message['params'],
-				];
-			}
+		foreach ($flashMessages as $flashMessage) {
+			$array[] = [
+				'message' => $flashMessage['message'] ?? null,
+				'type' => $flashMessage['type'] ?? null,
+				'params' => $flashMessage['params'] ?? null,
+			];
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$this->getController()->setResponse($controller->getResponse()->withHeader($headerKey, json_encode($array)));
+		$this->getController()->setResponse($controller->getResponse()->withHeader('X-' . ucfirst($key), json_encode($array)));
 
 		return null;
+	}
+
+	/**
+	 * @param string $key
+	 *
+	 * @return array
+	 */
+	protected function getFlashMessages(string $key): array {
+		$flashMessages = [];
+		$transientFlash = (array)Configure::read('TransientFlash');
+
+		if (!empty($transientFlash[$key])
+			&& is_array($transientFlash[$key])
+		) {
+			$flashMessages = $transientFlash[$key];
+		}
+
+		return $flashMessages;
 	}
 
 	/**
 	 * Adds a flash message.
 	 * Updates "messages" session content (to enable multiple messages of one type).
 	 *
-	 * @param string $message Message to output.
+	 * @param string|\Exception $message Message to output.
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function message($message, $options = null) {
+	public function message($message, $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		$this->set($message, $options);
@@ -119,7 +138,7 @@ class FlashComponent extends CakeFlashComponent {
 			$options['params']['escape'] = $options['escape'];
 		}
 
-		list($plugin, $element) = pluginSplit($options['element']);
+		[$plugin, $element] = pluginSplit($options['element']);
 
 		if ($plugin) {
 			$options['element'] = $plugin . '.flash/' . $element;
@@ -148,7 +167,7 @@ class FlashComponent extends CakeFlashComponent {
 	 *
 	 * @return array
 	 */
-	protected function _mergeOptions($options) {
+	protected function _mergeOptions($options): array {
 		if (!is_array($options)) {
 			$type = $options;
 			if (!$type) {
@@ -178,7 +197,7 @@ class FlashComponent extends CakeFlashComponent {
 	 *
 	 * @return void
 	 */
-	protected function _assertSessionStackSize(array $options) {
+	protected function _assertSessionStackSize(array $options): void {
 		$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
 		if ($messages && count($messages) > $this->getConfig('limit')) {
 			array_shift($messages);
@@ -188,7 +207,7 @@ class FlashComponent extends CakeFlashComponent {
 
 	/**
 	 * Adds a transient flash message.
-	 * These flash messages that are not saved (only available for current view),
+	 * These flash messages are not persisted across requests (only available for current view),
 	 * will be merged into the session flash ones prior to output.
 	 *
 	 * @param string $message Message to output.
@@ -198,7 +217,7 @@ class FlashComponent extends CakeFlashComponent {
 	public function transientMessage($message, $options = null) {
 		$options = $this->_mergeOptions($options);
 
-		list($plugin, $element) = pluginSplit($options['element']);
+		[$plugin, $element] = pluginSplit($options['element']);
 
 		if ($plugin) {
 			$options['element'] = $plugin . '.flash/' . $element;
@@ -241,6 +260,58 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		return $options;
+	}
+
+	/**
+	 * @inheritDoc
+	 * handles Flash->type (e.g. success, error) or ->transientType (e.g. transientSuccess, transientError)
+	 */
+	public function __call(string $name, array $args): void {
+		if ($name === 'transient') {
+			throw new BadMethodCallException('Method transient() does not exist. Select a type e.g. transientInfo().');
+		}
+
+		$transient = false;
+		if (strpos($name, 'transient') === 0) {
+			$transient = true;
+			$name = substr($name, 9); // remove transient
+			$type = lcfirst($name);
+
+			if (count($args) < 1) {
+				throw new InternalErrorException('Flash message missing.');
+			}
+		} else {
+			$type = $name;
+		}
+
+		$element = Inflector::underscore($name);
+
+		$options = ['element' => $element, 'type' => $type];
+
+		if (!empty($args[1])) {
+			if (!empty($args[1]['plugin'])) {
+				$options = ['element' => $args[1]['plugin'] . '.' . $element];
+				unset($args[1]['plugin']);
+			}
+			$options += (array)$args[1];
+		}
+
+		if ($transient || $this->ajaxHandling()) {
+			$this->transientMessage($args[0], $options);
+		} else {
+			$this->set($args[0], $options);
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function ajaxHandling(): bool {
+		if (!$this->getConfig('noSessionOnAjax')) {
+			return false;
+		}
+
+		return $this->getController()->getRequest()->is('ajax');
 	}
 
 }
