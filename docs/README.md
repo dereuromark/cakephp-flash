@@ -91,6 +91,14 @@ Example of how to handle AJAX flash messages:
     }
 ```
 
+By default, only transient messages are included here, as they are without side effects.
+That said, the component auto-writes all normal flash message usage also into that collection.
+
+You can disable that setting `noSessionOnAjax` to `false` (as explained below). They will then be ignored and kept in the session
+after that request. So this is not advised.
+In general, session based flash messages are not without side effect. Other requests could also have put them into the
+session, creating messages/responses on the (wrong/unintended) views.
+
 ## Customization
 
 ### Component Options
@@ -98,6 +106,7 @@ Example of how to handle AJAX flash messages:
 Option |Description
 :----- | :----------
 limit | Max message limit per key (first in, first out), defaults to `10`.
+noSessionOnAjax | Set to `false` to write normal session flash messages in AJAX case. They will be ignored, though.
 
 as well as the CakePHP core component options.
 

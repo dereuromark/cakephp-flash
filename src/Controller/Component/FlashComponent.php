@@ -16,7 +16,6 @@ use Exception;
  * persistent and transient.
  *
  * @author Mark Scherer
- * @copyright 2014 Mark Scherer
  * @license MIT
  *
  * @method void success(string $message, array $options = []) Set a message using "success" element
@@ -39,6 +38,7 @@ class FlashComponent extends CakeFlashComponent {
 	 */
 	protected $_defaultConfigExt = [
 		'limit' => 10, // Max message limit per key - first in, first out
+		'noSessionOnAjax' => true, // Set to false to disable auto-writing flash calls from normal flash() usage into transient collection on AJAX requests
 	];
 
 	/**
@@ -65,21 +65,14 @@ class FlashComponent extends CakeFlashComponent {
 			return null;
 		}
 
-		$ajaxMessages = [];
-		$transientFlash = (array)Configure::read('TransientFlash');
-
-		if (!empty($transientFlash[$this->getConfig('key')])
-			&& is_array($transientFlash[$this->getConfig('key')])
-		) {
-			$ajaxMessages = $transientFlash[$this->getConfig('key')];
-		}
+		$flashMessages = $this->getFlashMessages();
 
 		$array = [];
-		foreach ($ajaxMessages as $message) {
+		foreach ($flashMessages as $flashMessage) {
 			$array[] = [
-				'message' => $message['message'] ?? null,
-				'type' => $message['type'] ?? null,
-				'params' => $message['params'] ?? null,
+				'message' => $flashMessage['message'] ?? null,
+				'type' => $flashMessage['type'] ?? null,
+				'params' => $flashMessage['params'] ?? null,
 			];
 		}
 
@@ -87,6 +80,23 @@ class FlashComponent extends CakeFlashComponent {
 		$this->getController()->setResponse($controller->getResponse()->withHeader('X-Flash', json_encode($array)));
 
 		return null;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getFlashMessages(): array
+	{
+		$flashMessages = [];
+		$transientFlash = (array)Configure::read('TransientFlash');
+
+		if (!empty($transientFlash[$this->getConfig('key')])
+			&& is_array($transientFlash[$this->getConfig('key')])
+		) {
+			$flashMessages = $transientFlash[$this->getConfig('key')];
+		}
+
+		return $flashMessages;
 	}
 
 	/**
@@ -284,11 +294,23 @@ class FlashComponent extends CakeFlashComponent {
 			$options += (array)$args[1];
 		}
 
-		if ($transient) {
+		if ($transient || $this->ajaxHandling()) {
 			$this->transientMessage($args[0], $options);
 		} else {
 			$this->set($args[0], $options);
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function ajaxHandling(): bool
+	{
+		if (!$this->getConfig('noSessionOnAjax')) {
+			return false;
+		}
+
+		return $this->getController()->getRequest()->is('ajax');
 	}
 
 }
