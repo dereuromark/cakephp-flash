@@ -83,14 +83,6 @@ The following would only render (and consume) the error messages:
 
 AJAX calls will respond with a JSON encoded array of messages (each item containing a message key, a type key and params key) within the `X-Flash` header.
 
-Example of how to handle AJAX flash messages:
-```
-    if(jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) == 'object' && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) != 'undefined') {
-        const flash = JSON.parse(jqXHR.getResponseHeader('X-Flash'))[0];
-        customFunctionToNotifyFlashMessages(flash.message, flash.type);
-    }
-```
-
 By default, only transient messages are included here, as they are without side effects.
 That said, the component auto-writes all normal flash message usage also into that collection.
 
@@ -98,6 +90,32 @@ You can disable that setting `noSessionOnAjax` to `false` (as explained below). 
 after that request. So this is not advised.
 In general, session based flash messages are not without side effect. Other requests could also have put them into the
 session, creating messages/responses on the (wrong/unintended) views.
+
+Example of how to handle AJAX flash messages in the template using ``:
+```json
+// Single flash message only
+if (jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) == 'object' && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) != 'undefined') {
+    const flash = JSON.parse(jqXHR.getResponseHeader('X-Flash'))[0];
+    customFunctionToNotifyFlashMessages(flash.message, flash.type);
+}
+```
+
+Using jQuery:
+```json
+// Multi flash message
+var flash = xhr.getResponseHeader("X-Flash");
+var messages = JSON.parse(flash);
+
+if (messages) {
+    $.each(messages, function(index, message) {
+        if (message.type === 'success') {
+            // use message.message
+        } elseif (...) {
+            // ...
+        }
+    });
+}
+```
 
 ## Customization
 

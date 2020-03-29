@@ -177,7 +177,7 @@ class FlashHelper extends Helper {
 	 */
 	public function __call(string $name, array $args): void {
 		if (strpos($name, 'transient') !== 0) {
-			throw new BadMethodCallException('Method does not exist. Select a type, e.g. transientInfo().');
+			throw new BadMethodCallException('Method ' . $name . '() does not exist. Select a type, e.g. transientInfo().');
 		}
 
 		$name = substr($name, 9); // remove "transient" prefix
