@@ -7,7 +7,7 @@ composer require dereuromark/cakephp-flash
 ```
 
 ## Setup
-Enable the plugin in your `config/bootstrap.php` or call
+Enable the plugin in your `src/Application.php` or call
 ```
 bin/cake plugin load Flash
 ```
@@ -93,9 +93,9 @@ limit | Max message limit per key (first in, first out), defaults to `10`.
 order | Order of output, types default to `['error', 'warning', 'success', 'info']`, all others are rendered last.
 
 ### Flash layouts
-You should have `default.ctp`, `error.ctp`, `warning.ctp`, `success.ctp`, and `info.ctp` templates.
+You should have `default.php`, `error.php`, `warning.php`, `success.php`, and `info.php` templates.
 
-The `src/Template/Element/flash/error.ctp` could look like this:
+The `src/Template/Element/flash/error.php` could look like this:
 ```html
 <?php
 if (!isset($params['escape']) || $params['escape'] !== false) {
