@@ -1,6 +1,6 @@
 # CakePHP Flash Plugin
 
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-flash.png?branch=master)](https://travis-ci.org/dereuromark/cakephp-flash)
+[![Build Status](https://api.travis-ci.com/dereuromark/cakephp-flash.png?branch=master)](https://travis-ci.org/dereuromark/cakephp-flash)
 [![Coverage Status](https://img.shields.io/codecov/c/github/dereuromark/cakephp-flash/master.svg)](https://codecov.io/github/dereuromark/cakephp-flash?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/dereuromark/cakephp-flash/v/stable.svg)](https://packagist.org/packages/dereuromark/cakephp-flash)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
