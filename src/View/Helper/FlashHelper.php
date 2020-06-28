@@ -187,8 +187,9 @@ class FlashHelper extends Helper {
 			throw new InternalErrorException('Flash message missing.');
 		}
 
-		$options['type'] = $type;
-
+		$options = [
+			'type' => $type,
+		];
 		$this->transientMessage($args[0], $options);
 	}
 
