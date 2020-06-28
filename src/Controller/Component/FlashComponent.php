@@ -3,8 +3,8 @@
 namespace Flash\Controller\Component;
 
 use BadMethodCallException;
-use Cake\Controller\ComponentRegistry;
 use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
+use Cake\Controller\ComponentRegistry;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\InternalErrorException;
