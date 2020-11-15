@@ -82,7 +82,8 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$this->getController()->setResponse($controller->getResponse()->withHeader($this->getConfig('headerKey'), json_encode($array)));
+		$json = (string)json_encode($array);
+		$this->getController()->setResponse($controller->getResponse()->withHeader($this->getConfig('headerKey'), $json));
 
 		return null;
 	}
