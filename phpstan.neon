@@ -1,6 +1,7 @@
 parameters:
-	level: 1
+	level: 8
 	checkMissingIterableValueType: false
 	bootstrapFiles:
 		- %rootDir%/../../../tests/bootstrap.php
 	ignoreErrors:
+		- '#Offset .+ does not exist on array\(.+\)#'

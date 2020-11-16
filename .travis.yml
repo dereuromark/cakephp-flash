@@ -29,15 +29,13 @@ before_script:
   - if [[ $PREFER_LOWEST == 1 ]]; then composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction ; fi
   - if [[ $PREFER_LOWEST == 1 ]]; then composer require --dev dereuromark/composer-prefer-lowest:dev-master; fi
 
-  - if [[ $CHECKS != 1 ]]; then composer require --dev phpunit/phpunit:"^8.4"; fi
-
 script:
   - if [[ $DEFAULT == 1 ]]; then vendor/bin/phpunit; fi
   - if [[ $CODECOVERAGE == 1 ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover=clover.xml; fi
 
   - if [[ $PREFER_LOWEST == 1 ]]; then vendor/bin/validate-prefer-lowest; fi
 
-  - if [[ $CHECKS == 1 ]]; then composer stan-setup && composer stan; fi
+  - if [[ $CHECKS == 1 ]]; then composer stan-setup && composer stan && composer stan-tests; fi
   - if [[ $CHECKS == 1 ]]; then composer cs-check; fi
 
 after_success:
