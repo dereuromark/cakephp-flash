@@ -3,11 +3,12 @@
 namespace Flash\Controller\Component;
 
 use BadMethodCallException;
-use Cake\Controller\Component\FlashComponent as CakeFlashComponent;
+use Cake\Controller\Component;
 use Cake\Controller\ComponentRegistry;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\InternalErrorException;
+use Cake\Http\Session;
 use Cake\Utility\Inflector;
 use Exception;
 
@@ -31,7 +32,20 @@ use Exception;
  * @method void transientInfo(string $message, array $options = []) Set a message using "info" element
  *   These flash messages are not persisted across requests (only available for current view)
  */
-class FlashComponent extends CakeFlashComponent {
+class FlashComponent extends Component {
+
+	/**
+	 * Default configuration
+	 *
+	 * @var array
+	 */
+	protected $_defaultConfig = [
+		'key' => 'flash',
+		'element' => 'default',
+		'params' => [],
+		'clear' => false,
+		'duplicate' => true,
+	];
 
 	/**
 	 * @var array
@@ -317,6 +331,15 @@ class FlashComponent extends CakeFlashComponent {
 		}
 
 		return $this->getController()->getRequest()->is('ajax');
+	}
+
+	/**
+	 * Returns current session object from a controller request.
+	 *
+	 * @return \Cake\Http\Session
+	 */
+	protected function getSession(): Session {
+		return $this->getController()->getRequest()->getSession();
 	}
 
 }
