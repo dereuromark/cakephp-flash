@@ -25,7 +25,7 @@ class FlashHelper extends Helper {
 	/**
 	 * Default configuration
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	protected $_defaultConfig = [
 		'key' => 'flash',
@@ -42,7 +42,7 @@ class FlashHelper extends Helper {
 	 * - types: Types to render out, defaults to all
 	 *
 	 * @param string $key The [Flash.]key you are rendering in the view.
-	 * @param array $options Additional options to use for the creation of this flash message.
+	 * @param array<string, mixed> $options Additional options to use for the creation of this flash message.
 	 *    Supports the 'params', and 'element' keys that are used in the helper.
 	 * @throws \UnexpectedValueException If value for flash settings key is not an array.
 	 * @return string|null Rendered flash message or null if flash key does not exist
@@ -97,8 +97,8 @@ class FlashHelper extends Helper {
 	}
 
 	/**
-	 * @param array $messages
-	 * @return array
+	 * @param array<array<string, mixed>> $messages
+	 * @return array<array<string, mixed>>
 	 */
 	protected function _order(array $messages): array {
 		$order = $this->getConfig('order');
@@ -109,7 +109,7 @@ class FlashHelper extends Helper {
 		$result = [];
 		foreach ($order as $type) {
 			foreach ($messages as $k => $message) {
-				$messageType = isset($message['type']) ? $message['type'] : substr($message['element'], strrpos($message['element'], '/') + 1);
+				$messageType = $message['type'] ?? substr($message['element'], strrpos($message['element'], '/') + 1);
 				if ($messageType !== $type) {
 					continue;
 				}
@@ -131,8 +131,8 @@ class FlashHelper extends Helper {
 	 * Note that this does not use the Session.
 	 *
 	 * @param string $message String to output.
-	 * @param array|string|null $messageOptions Message options
-	 * @param array $options Element options
+	 * @param array<string, mixed>|string|null $messageOptions Message options
+	 * @param array<string, mixed> $options Element options
 	 *
 	 * @return string HTML
 	 */
@@ -170,7 +170,7 @@ class FlashHelper extends Helper {
 	 * Add a message on the fly
 	 *
 	 * @param string $name name
-	 * @param array $args method arguments
+	 * @param array<string> $args method arguments
 	 * @throws \BadMethodCallException
 	 * @throws \Cake\Http\Exception\InternalErrorException
 	 * @return void
@@ -194,9 +194,9 @@ class FlashHelper extends Helper {
 	}
 
 	/**
-	 * @param array|string|null $options
+	 * @param array<string, mixed>|string|null $options
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	protected function _mergeOptions($options): array {
 		if (!is_array($options)) {

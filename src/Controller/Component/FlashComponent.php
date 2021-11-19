@@ -37,7 +37,7 @@ class FlashComponent extends Component {
 	/**
 	 * Default configuration
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	protected $_defaultConfig = [
 		'key' => 'flash',
@@ -48,7 +48,7 @@ class FlashComponent extends Component {
 	];
 
 	/**
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	protected $_defaultConfigExt = [
 		'limit' => 10, // Max message limit per key - first in, first out
@@ -58,7 +58,7 @@ class FlashComponent extends Component {
 
 	/**
 	 * @param \Cake\Controller\ComponentRegistry $registry A ComponentRegistry for this component
-	 * @param array $config Array of config.
+	 * @param array<string, mixed> $config Array of config.
 	 */
 	public function __construct(ComponentRegistry $registry, array $config = []) {
 		$this->_defaultConfig += $this->_defaultConfigExt;
@@ -124,7 +124,7 @@ class FlashComponent extends Component {
 	 * Adds a flash message.
 	 * Updates "messages" session content (to enable multiple messages of one type).
 	 *
-	 * @param string|\Exception $message Message to output.
+	 * @param \Exception|string $message Message to output.
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
@@ -137,8 +137,8 @@ class FlashComponent extends Component {
 	}
 
 	/**
-	 * @param string|\Exception $message
-	 * @param array $options
+	 * @param \Exception|string $message
+	 * @param array<string, mixed> $options
 	 *
 	 * @return void
 	 */
@@ -182,9 +182,9 @@ class FlashComponent extends Component {
 	}
 
 	/**
-	 * @param array|string|null $options
+	 * @param array<string, mixed>|string|null $options
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	protected function _mergeOptions($options): array {
 		if (!is_array($options)) {
@@ -212,7 +212,7 @@ class FlashComponent extends Component {
 	}
 
 	/**
-	 * @param array $options
+	 * @param array<string, mixed> $options
 	 *
 	 * @return void
 	 */
@@ -261,7 +261,7 @@ class FlashComponent extends Component {
 	/**
 	 * Transforms Crud plugin flashs into Flash messages.
 	 *
-	 * @param array $options
+	 * @param array<string, mixed> $options
 	 *
 	 * @return array
 	 */
