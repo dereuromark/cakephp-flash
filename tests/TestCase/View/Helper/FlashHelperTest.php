@@ -12,7 +12,7 @@ class FlashHelperTest extends TestCase {
 	/**
 	 * @var array
 	 */
-	protected $fixtures = ['core.Sessions'];
+	protected array $fixtures = ['core.Sessions'];
 
 	/**
 	 * @var \Flash\View\Helper\FlashHelper

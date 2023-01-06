@@ -27,7 +27,7 @@ class FlashHelper extends Helper {
 	 *
 	 * @var array<string, mixed>
 	 */
-	protected $_defaultConfig = [
+	protected array $_defaultConfig = [
 		'key' => 'flash',
 		'element' => 'default',
 		'params' => [],

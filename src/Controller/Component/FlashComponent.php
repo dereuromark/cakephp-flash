@@ -39,7 +39,7 @@ class FlashComponent extends Component {
 	 *
 	 * @var array<string, mixed>
 	 */
-	protected $_defaultConfig = [
+	protected array $_defaultConfig = [
 		'key' => 'flash',
 		'element' => 'default',
 		'params' => [],
@@ -50,7 +50,7 @@ class FlashComponent extends Component {
 	/**
 	 * @var array<string, mixed>
 	 */
-	protected $_defaultConfigExt = [
+	protected array $_defaultConfigExt = [
 		'limit' => 10, // Max message limit per key - first in, first out
 		'headerKey' => 'X-Flash', // Set to empty string to disable headers for AJAX requests.
 		'noSessionOnAjax' => true, // Set to false to disable auto-writing flash calls from normal flash() usage into transient collection on AJAX requests
