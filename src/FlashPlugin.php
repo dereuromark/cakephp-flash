@@ -4,7 +4,7 @@ namespace Flash;
 
 use Cake\Core\BasePlugin;
 
-class Plugin extends BasePlugin {
+class FlashPlugin extends BasePlugin {
 
 	/**
 	 * @var bool

@@ -5,6 +5,8 @@
 
     <file>src/</file>
     <file>tests/</file>
+
     <exclude-pattern>/tests/test_files/</exclude-pattern>
+
     <rule ref="PSR2R"/>
 </ruleset>
