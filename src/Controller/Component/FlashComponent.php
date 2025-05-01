@@ -70,20 +70,20 @@ class FlashComponent extends Component {
 	 * Controller::render()
 	 *
 	 * @param \Cake\Event\EventInterface $event
-	 * @return \Cake\Http\Response|null
+	 * @return void
 	 */
-	public function beforeRender(EventInterface $event) {
+	public function beforeRender(EventInterface $event): void {
 		/** @var \Cake\Controller\Controller $controller */
 		$controller = $event->getSubject();
 
 		if (!$this->getConfig('headerKey') || !$controller->getRequest()->is('ajax')) {
-			return null;
+			return;
 		}
 
 		$key = $this->getConfig('key');
 		$flashMessages = $this->getFlashMessages($key);
 		if (!$flashMessages) {
-			return null;
+			return;
 		}
 
 		$array = [];
@@ -98,8 +98,6 @@ class FlashComponent extends Component {
 		// The header can be read with JavaScript and the flash messages can be displayed
 		$json = (string)json_encode($array);
 		$this->getController()->setResponse($controller->getResponse()->withHeader($this->getConfig('headerKey'), $json));
-
-		return null;
 	}
 
 	/**
