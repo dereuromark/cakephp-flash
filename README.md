@@ -10,7 +10,7 @@
 
 A plugin for more powerful flash messages in your CakePHP apps.
 
-This branch is for **CakePHP 5.0+**. See [version map](https://github.com/dereuromark/cakephp-flash/wiki#cakephp-version-map) for details.
+This branch is for **CakePHP 5.1+**. See [version map](https://github.com/dereuromark/cakephp-flash/wiki#cakephp-version-map) for details.
 
 ## Features
 
