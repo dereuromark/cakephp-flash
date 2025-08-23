@@ -18,7 +18,7 @@ if (!is_dir(TMP)) {
 	mkdir(TMP, 0770, true);
 }
 
-define('CONFIG', dirname(__FILE__) . DS . 'config' . DS);
+define('CONFIG', __DIR__ . DS . 'config' . DS);
 define('LOGS', TMP . 'logs' . DS);
 define('CACHE', TMP . 'cache' . DS);
 
