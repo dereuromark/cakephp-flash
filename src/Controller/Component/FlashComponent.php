@@ -51,9 +51,16 @@ class FlashComponent extends Component {
 	 * @var array<string, mixed>
 	 */
 	protected array $_defaultConfigExt = [
-		'limit' => 10, // Max message limit per key - first in, first out
-		'headerKey' => 'X-Flash', // Set to empty string to disable headers for AJAX requests.
-		'noSessionOnAjax' => true, // Set to false to disable auto-writing flash calls from normal flash() usage into transient collection on AJAX requests
+		// Max message limit per key - first in, first out
+		'limit' => 10,
+		// Set to empty string to disable headers for AJAX requests.
+		'headerKey' => 'X-Flash',
+		// Set to true to enable header injection on redirects
+		'headerOnRedirect' => false,
+		// Set to false to disable auto-writing flash calls from normal flash() usage into transient collection on AJAX requests
+		'noSessionOnAjax' => true,
+		// Detectors to identify AJAX requests
+		'ajaxDetectors' => ['ajax'],
 	];
 
 	/**
@@ -63,6 +70,22 @@ class FlashComponent extends Component {
 	public function __construct(ComponentRegistry $registry, array $config = []) {
 		$this->_defaultConfig += $this->_defaultConfigExt;
 		parent::__construct($registry, $config);
+	}
+
+	/**
+	 * Called before a redirect is performed.
+	 *
+	 * @param \Cake\Event\EventInterface $event
+	 * @param array|string $url
+	 * @param \Cake\Http\Response $response
+	 * @return void
+	 */
+	public function beforeRedirect(EventInterface $event, $url, $response): void {
+		if (!$this->getConfig('headerOnRedirect')) {
+			return;
+		}
+
+		$this->addFlashHeader($response);
 	}
 
 	/**
@@ -76,7 +99,22 @@ class FlashComponent extends Component {
 		/** @var \Cake\Controller\Controller $controller */
 		$controller = $event->getSubject();
 
-		if (!$this->getConfig('headerKey') || !$controller->getRequest()->is('ajax')) {
+		$this->addFlashHeader($controller->getResponse());
+	}
+
+	/**
+	 * Adds flash messages to response header if applicable.
+	 *
+	 * @param \Cake\Http\Response $response
+	 * @return void
+	 */
+	protected function addFlashHeader($response): void {
+		$controller = $this->getController();
+
+		if (
+			!$this->getConfig('headerKey') ||
+			!$controller->getRequest()->is($this->getConfig('ajaxDetectors'))
+		) {
 			return;
 		}
 
@@ -97,7 +135,7 @@ class FlashComponent extends Component {
 
 		// The header can be read with JavaScript and the flash messages can be displayed
 		$json = (string)json_encode($array);
-		$this->getController()->setResponse($controller->getResponse()->withHeader($this->getConfig('headerKey'), $json));
+		$controller->setResponse($response->withHeader($this->getConfig('headerKey'), $json));
 	}
 
 	/**
@@ -328,7 +366,9 @@ class FlashComponent extends Component {
 			return false;
 		}
 
-		return $this->getController()->getRequest()->is('ajax');
+		return $this->getController()->getRequest()->is(
+			$this->getConfig('ajaxDetectors'),
+		);
 	}
 
 	/**
