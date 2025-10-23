@@ -132,4 +132,73 @@ class FlashComponentTest extends TestCase {
 		$this->assertFalse($res[0]['params']['escape']);
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testBeforeRedirect() {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+
+		$this->Controller->Flash->setConfig('headerOnRedirect', true);
+		$this->Controller->Flash->success('redirect-success');
+		$this->Controller->Flash->transientMessage('redirect-warning', 'warning');
+
+		$event = new Event('Controller.beforeRedirect', $this->Controller, [
+			'url' => '/some/path',
+			'response' => $this->Controller->getResponse(),
+		]);
+		$this->Controller->Flash->beforeRedirect($event, '/some/path', $this->Controller->getResponse());
+
+		$result = $this->Controller->getResponse()->getHeaders();
+		$expected = [
+			'Content-Type' => ['text/html; charset=UTF-8'],
+			'X-Flash' => ['[{"message":"redirect-success","type":"success","params":[]},{"message":"redirect-warning","type":"warning","params":[]}]'],
+		];
+		$this->assertSame($expected, $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testBeforeRedirectNonAjax() {
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$this->Controller->Flash->setConfig('headerOnRedirect', true);
+		$this->Controller->Flash->success('redirect-success');
+
+		$event = new Event('Controller.beforeRedirect', $this->Controller, [
+			'url' => '/some/path',
+			'response' => $this->Controller->getResponse(),
+		]);
+		$this->Controller->Flash->beforeRedirect($event, '/some/path', $this->Controller->getResponse());
+
+		$result = $this->Controller->getResponse()->getHeaders();
+		$expected = [
+			'Content-Type' => ['text/html; charset=UTF-8'],
+		];
+		$this->assertSame($expected, $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testBeforeRedirectDisabledByDefault() {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+
+		// headerOnRedirect is false by default
+		$this->Controller->Flash->success('redirect-success');
+		$this->Controller->Flash->transientMessage('redirect-warning', 'warning');
+
+		$event = new Event('Controller.beforeRedirect', $this->Controller, [
+			'url' => '/some/path',
+			'response' => $this->Controller->getResponse(),
+		]);
+		$this->Controller->Flash->beforeRedirect($event, '/some/path', $this->Controller->getResponse());
+
+		$result = $this->Controller->getResponse()->getHeaders();
+		$expected = [
+			'Content-Type' => ['text/html; charset=UTF-8'],
+		];
+		$this->assertSame($expected, $result);
+	}
+
 }
