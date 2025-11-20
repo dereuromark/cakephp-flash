@@ -8,6 +8,7 @@ use Cake\Controller\ComponentRegistry;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\InternalErrorException;
+use Cake\Http\Response;
 use Cake\Http\Session;
 use Cake\Utility\Inflector;
 use Exception;
@@ -80,7 +81,7 @@ class FlashComponent extends Component {
 	 * @param \Cake\Http\Response $response
 	 * @return void
 	 */
-	public function beforeRedirect(EventInterface $event, $url, $response): void {
+	public function beforeRedirect(EventInterface $event, array|string $url, Response $response): void {
 		if (!$this->getConfig('headerOnRedirect')) {
 			return;
 		}
@@ -108,7 +109,7 @@ class FlashComponent extends Component {
 	 * @param \Cake\Http\Response $response
 	 * @return void
 	 */
-	protected function addFlashHeader($response): void {
+	protected function addFlashHeader(Response $response): void {
 		$controller = $this->getController();
 
 		if (
@@ -134,7 +135,11 @@ class FlashComponent extends Component {
 		}
 
 		// The header can be read with JavaScript and the flash messages can be displayed
-		$json = (string)json_encode($array);
+		try {
+			$json = json_encode($array, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+		} catch (\JsonException $e) {
+			return;
+		}
 		$controller->setResponse($response->withHeader($this->getConfig('headerKey'), $json));
 	}
 
@@ -164,7 +169,7 @@ class FlashComponent extends Component {
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function message($message, $options = null): void {
+	public function message(\Exception|string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		$this->set($message, $options);
@@ -178,7 +183,7 @@ class FlashComponent extends Component {
 	 *
 	 * @return void
 	 */
-	public function set($message, array $options = []): void {
+	public function set(\Exception|string $message, array $options = []): void {
 		$options = $this->_mergeOptions($options);
 		$options += $this->getConfig();
 
@@ -222,15 +227,10 @@ class FlashComponent extends Component {
 	 *
 	 * @return array<string, mixed>
 	 */
-	protected function _mergeOptions($options): array {
+	protected function _mergeOptions(array|string|null $options): array {
 		if (!is_array($options)) {
-			$type = $options;
-			if (!$type) {
-				$type = 'info';
-			}
-			$options = [
-				'type' => $type,
-			];
+			$type = $options ?? 'info';
+			$options = ['type' => $type];
 		}
 
 		$options = $this->_transformCrudOptions($options);
@@ -269,7 +269,7 @@ class FlashComponent extends Component {
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function transientMessage($message, $options = null) {
+	public function transientMessage(\Exception|string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		[$plugin, $element] = pluginSplit($options['element']);
@@ -301,7 +301,7 @@ class FlashComponent extends Component {
 	 *
 	 * @return array
 	 */
-	protected function _transformCrudOptions(array $options) {
+	protected function _transformCrudOptions(array $options): array {
 		if (isset($options['params']['class']) && !isset($options['type'])) {
 			$class = $options['params']['class'];
 			$pos = strrpos($class, ' ');
