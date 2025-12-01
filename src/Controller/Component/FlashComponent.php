@@ -12,6 +12,7 @@ use Cake\Http\Response;
 use Cake\Http\Session;
 use Cake\Utility\Inflector;
 use Exception;
+use JsonException;
 
 /**
  * A flash component to enhance flash message support with stackable messages, both
@@ -137,7 +138,7 @@ class FlashComponent extends Component {
 		// The header can be read with JavaScript and the flash messages can be displayed
 		try {
 			$json = json_encode($array, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-		} catch (\JsonException $e) {
+		} catch (JsonException $e) {
 			return;
 		}
 		$controller->setResponse($response->withHeader($this->getConfig('headerKey'), $json));
@@ -169,7 +170,7 @@ class FlashComponent extends Component {
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function message(\Exception|string $message, array|string|null $options = null): void {
+	public function message(Exception|string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		$this->set($message, $options);
@@ -183,7 +184,7 @@ class FlashComponent extends Component {
 	 *
 	 * @return void
 	 */
-	public function set(\Exception|string $message, array $options = []): void {
+	public function set(Exception|string $message, array $options = []): void {
 		$options = $this->_mergeOptions($options);
 		$options += $this->getConfig();
 
@@ -269,7 +270,7 @@ class FlashComponent extends Component {
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function transientMessage(\Exception|string $message, array|string|null $options = null): void {
+	public function transientMessage(Exception|string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		[$plugin, $element] = pluginSplit($options['element']);
