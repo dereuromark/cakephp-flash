@@ -91,8 +91,8 @@ after that request. So this is not advised.
 In general, session based flash messages are not without side effect. Other requests could also have put them into the
 session, creating messages/responses on the (wrong/unintended) views.
 
-Example of how to handle AJAX flash messages in the template using ``:
-```json
+Example of how to handle AJAX flash messages in the template:
+```javascript
 // Single flash message only
 if (jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) == 'object' && typeof JSON.parse(jqXHR.getResponseHeader('X-Flash')) != 'undefined') {
     const flash = JSON.parse(jqXHR.getResponseHeader('X-Flash'))[0];
@@ -101,7 +101,7 @@ if (jqXHR.getResponseHeader('X-Flash') && typeof JSON.parse(jqXHR.getResponseHea
 ```
 
 Using jQuery:
-```json
+```javascript
 // Multi flash message
 var flash = xhr.getResponseHeader("X-Flash");
 var messages = JSON.parse(flash);
@@ -110,7 +110,7 @@ if (messages) {
     $.each(messages, function(index, message) {
         if (message.type === 'success') {
             // use message.message
-        } elseif (...) {
+        } else if (message.type === 'error') {
             // ...
         }
     });
