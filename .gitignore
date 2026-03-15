@@ -5,3 +5,4 @@ composer.phar
 .idea/
 .phpunit.result.cache
 tmp/
+.phpcs.cache
