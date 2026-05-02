@@ -66,6 +66,8 @@ $this->Flash->transientError('I am not persisted in session');
 $this->Flash->transientMessage('Oh oh', ['type' => 'custom']);
 ```
 
+Use `transient<Type>()` or `transientMessage()`. A bare `transient()` call is invalid and throws.
+
 Note: Do not try to add anything in the layout below the `render()` call as that would not be included anymore.
 
 If you want to just output a message anywhere in your template (like a warning block):

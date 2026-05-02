@@ -162,8 +162,10 @@ class FlashHelper extends Helper {
 		// Keep the stack at most `limit` entries even if multiple writes piled up
 		// before this call (Issue #M3 sibling — single shift wasn't enough).
 		$limit = (int)$this->getConfig('limit');
-		while ($messages && count($messages) >= $limit) {
+		$count = count($messages);
+		while ($count >= $limit) {
 			array_shift($messages);
+			$count--;
 		}
 		$messages[] = $options;
 		Configure::write('TransientFlash.' . $options['key'], $messages);

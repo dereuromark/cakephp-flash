@@ -2,6 +2,7 @@
 
 namespace Flash\Test\TestCase\View\Helper;
 
+use BadMethodCallException;
 use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
@@ -15,9 +16,9 @@ class FlashHelperTest extends TestCase {
 	protected array $fixtures = ['core.Sessions'];
 
 	/**
-	 * @var \Flash\View\Helper\FlashHelper
+	 * @var \Flash\View\Helper\FlashHelper|null
 	 */
-	protected $Flash;
+	protected ?FlashHelper $Flash = null;
 
 	/**
 	 * @return void
@@ -38,7 +39,7 @@ class FlashHelperTest extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		unset($this->Flash);
+		$this->Flash = null;
 	}
 
 	/**
@@ -107,6 +108,16 @@ class FlashHelperTest extends TestCase {
 <div class="custom-info foo">I am sth custom</div>
 ';
 		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testTransientRequiresType(): void {
+		$this->expectException(BadMethodCallException::class);
+		$this->expectExceptionMessage('Method transient() does not exist. Select a type, e.g. transientInfo().');
+
+		$this->Flash->transient('Missing type');
 	}
 
 }
