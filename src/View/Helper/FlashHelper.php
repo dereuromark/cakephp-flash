@@ -136,7 +136,7 @@ class FlashHelper extends Helper {
 	 *
 	 * @return string HTML
 	 */
-	public function message(string $message, $messageOptions = null, array $options = []): string {
+	public function message(string $message, array|string|null $messageOptions = null, array $options = []): string {
 		$messageOptions = $this->_mergeOptions($messageOptions);
 		$messageOptions['message'] = $message;
 
@@ -151,16 +151,21 @@ class FlashHelper extends Helper {
 	 * Add a message on the fly
 	 *
 	 * @param string $message
-	 * @param array|string|null $options
+	 * @param array<string, mixed>|string|null $options
 	 * @return void
 	 */
-	public function transientMessage(string $message, $options = null): void {
+	public function transientMessage(string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
 		$options['message'] = $message;
 
 		$messages = (array)Configure::read('TransientFlash.' . $options['key']);
-		if ($messages && count($messages) > $this->getConfig('limit')) {
+		// Keep the stack at most `limit` entries even if multiple writes piled up
+		// before this call (Issue #M3 sibling — single shift wasn't enough).
+		$limit = (int)$this->getConfig('limit');
+		$count = count($messages);
+		while ($count >= $limit) {
 			array_shift($messages);
+			$count--;
 		}
 		$messages[] = $options;
 		Configure::write('TransientFlash.' . $options['key'], $messages);
@@ -170,13 +175,16 @@ class FlashHelper extends Helper {
 	 * Add a message on the fly
 	 *
 	 * @param string $name name
-	 * @param array<string> $args method arguments
+	 * @param array<int, mixed> $args method arguments
 	 * @throws \BadMethodCallException
 	 * @throws \Cake\Http\Exception\InternalErrorException
 	 * @return void
 	 */
 	public function __call(string $name, array $args): void {
-		if (strpos($name, 'transient') !== 0) {
+		// Match FlashComponent::__call: the literal `transient()` is a programmer error
+		// (no type suffix) and must throw rather than silently store under type=''
+		// (Issue #M4).
+		if ($name === 'transient' || !str_starts_with($name, 'transient')) {
 			throw new BadMethodCallException('Method ' . $name . '() does not exist. Select a type, e.g. transientInfo().');
 		}
 
@@ -198,7 +206,7 @@ class FlashHelper extends Helper {
 	 *
 	 * @return array<string, mixed>
 	 */
-	protected function _mergeOptions($options): array {
+	protected function _mergeOptions(array|string|null $options): array {
 		if (!is_array($options)) {
 			$type = $options;
 			if (!$type) {
@@ -216,6 +224,12 @@ class FlashHelper extends Helper {
 		$options += $this->getConfig();
 
 		[$plugin, $element] = pluginSplit($options['element']);
+
+		// Idempotency: if the caller already passed `flash/error`, don't produce
+		// `flash/flash/error` (Issue #M5).
+		if (str_starts_with($element, 'flash/')) {
+			$element = substr($element, 6);
+		}
 
 		if ($plugin) {
 			$options['element'] = $plugin . '.flash/' . $element;

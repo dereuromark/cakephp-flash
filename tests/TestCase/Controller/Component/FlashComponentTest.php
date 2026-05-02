@@ -11,9 +11,9 @@ use TestApp\Controller\FlashComponentTestController;
 class FlashComponentTest extends TestCase {
 
 	/**
-	 * @var \TestApp\Controller\FlashComponentTestController
+	 * @var \TestApp\Controller\FlashComponentTestController|null
 	 */
-	protected $Controller;
+	protected ?FlashComponentTestController $Controller = null;
 
 	/**
 	 * @return void
@@ -34,7 +34,7 @@ class FlashComponentTest extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		unset($this->Controller);
+		$this->Controller = null;
 	}
 
 	/**
