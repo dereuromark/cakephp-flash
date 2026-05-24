@@ -109,7 +109,7 @@ class FlashHelper extends Helper {
 		$result = [];
 		foreach ($order as $type) {
 			foreach ($messages as $k => $message) {
-				$messageType = $message['type'] ?? (($pos = strrpos((string) $message['element'], '/')) !== false ? substr((string) $message['element'], $pos + 1) : $message['element']);
+				$messageType = $message['type'] ?? (($pos = strrpos((string)$message['element'], '/')) !== false ? substr((string)$message['element'], $pos + 1) : $message['element']);
 				if ($messageType !== $type) {
 					continue;
 				}
@@ -227,8 +227,8 @@ class FlashHelper extends Helper {
 
 		// Idempotency: if the caller already passed `flash/error`, don't produce
 		// `flash/flash/error` (Issue #M5).
-		if (str_starts_with((string) $element, 'flash/')) {
-			$element = substr((string) $element, 6);
+		if (str_starts_with((string)$element, 'flash/')) {
+			$element = substr((string)$element, 6);
 		}
 
 		$options['element'] = $plugin ? $plugin . '.flash/' . $element : 'flash/' . $element;
