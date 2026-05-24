@@ -138,7 +138,7 @@ class FlashComponent extends Component {
 		// The header can be read with JavaScript and the flash messages can be displayed
 		try {
 			$json = json_encode($array, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-		} catch (JsonException $e) {
+		} catch (JsonException) {
 			return;
 		}
 		$controller->setResponse($response->withHeader($this->getConfig('headerKey'), $json));
@@ -201,11 +201,7 @@ class FlashComponent extends Component {
 
 		[$plugin, $element] = pluginSplit($options['element']);
 
-		if ($plugin) {
-			$options['element'] = $plugin . '.flash/' . $element;
-		} else {
-			$options['element'] = 'flash/' . $element;
-		}
+		$options['element'] = $plugin ? $plugin . '.flash/' . $element : 'flash/' . $element;
 
 		$messages = [];
 		if ($options['clear'] === false) {
@@ -243,9 +239,7 @@ class FlashComponent extends Component {
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
 
-		$options += (array)$this->getConfig();
-
-		return $options;
+		return $options + (array)$this->getConfig();
 	}
 
 	/**
@@ -275,11 +269,7 @@ class FlashComponent extends Component {
 
 		[$plugin, $element] = pluginSplit($options['element']);
 
-		if ($plugin) {
-			$options['element'] = $plugin . '.flash/' . $element;
-		} else {
-			$options['element'] = 'flash/' . $element;
-		}
+		$options['element'] = $plugin ? $plugin . '.flash/' . $element : 'flash/' . $element;
 
 		$messages = (array)Configure::read('TransientFlash.' . $options['key']);
 		if ($messages && count($messages) > $this->getConfig('limit')) {
@@ -328,7 +318,7 @@ class FlashComponent extends Component {
 		}
 
 		$transient = false;
-		if (strpos($name, 'transient') === 0) {
+		if (str_starts_with($name, 'transient')) {
 			$transient = true;
 			$name = substr($name, 9); // remove transient
 			$type = lcfirst($name);
