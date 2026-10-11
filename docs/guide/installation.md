@@ -1,5 +1,7 @@
 # Installation
 
+For this development branch, the application's root `composer.json` must allow development dependencies with `"minimum-stability": "dev"`. Set `"prefer-stable": true` to prefer stable packages when their constraints permit it.
+
 From your application's root directory:
 
 ```sh
@@ -11,4 +13,3 @@ Composer checks the supported PHP and CakePHP versions. This development branch 
 
 Continue with [Getting started](./getting-started.md) to load the component and helper and create the templates. The plugin does not need a database table or plugin routes.
 
-For this development branch, the application's root `composer.json` must allow development dependencies with `"minimum-stability": "dev"`. Set `"prefer-stable": true` to prefer stable packages when their constraints permit it.
