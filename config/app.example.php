@@ -11,7 +11,9 @@ return [
 		'params' => [],
 		// Helper output order.
 		'order' => ['error', 'warning', 'success', 'info'],
-		// Component AJAX response options.
+		// Component session and AJAX response options.
+		'clear' => false,
+		'duplicate' => true,
 		'headerKey' => 'X-Flash',
 		'headerOnRedirect' => false,
 		'noSessionOnAjax' => true,

@@ -42,7 +42,7 @@ class FlashHelper extends Helper {
 	 * @param array<string, mixed> $config Helper options override shared Flash configuration.
 	 */
 	public function __construct(View $view, array $config = []) {
-		$defaults = (array)Configure::read('Flash');
+		$defaults = array_intersect_key((array)Configure::read('Flash'), $this->_defaultConfig + ['plugin' => null, 'escape' => null]);
 		$options = $config + $defaults;
 		parent::__construct($view, $options);
 		if (array_key_exists('order', $options)) {

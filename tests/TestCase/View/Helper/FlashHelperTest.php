@@ -179,4 +179,12 @@ class FlashHelperTest extends TestCase {
 		$this->assertStringContainsString('second', $helper->render());
 	}
 
+	public function testLoadOrderOverridesSharedOrderWithoutComponentOptions(): void {
+		Configure::write('Flash', ['order' => ['info', 'error'], 'headerKey' => 'X-Messages']);
+		$helper = new FlashHelper(new View(), ['order' => []]);
+
+		$this->assertSame([], $helper->getConfig('order'));
+		$this->assertNull($helper->getConfig('headerKey'));
+	}
+
 }

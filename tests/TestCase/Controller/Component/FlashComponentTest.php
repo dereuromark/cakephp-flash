@@ -353,4 +353,15 @@ class FlashComponentTest extends TestCase {
 		$this->assertSame(['shared' => true], $helper->getConfig('params'));
 	}
 
+	public function testSharedAndLoadDetectorsReplaceTheDefaultList(): void {
+		Configure::write('Flash', ['ajaxDetectors' => ['json']]);
+		$this->Controller->components()->unload('Flash');
+		$this->Controller->loadComponent('Flash.Flash');
+		$this->assertSame(['json'], $this->Controller->Flash->getConfig('ajaxDetectors'));
+
+		$this->Controller->components()->unload('Flash');
+		$this->Controller->loadComponent('Flash.Flash', ['ajaxDetectors' => []]);
+		$this->assertSame([], $this->Controller->Flash->getConfig('ajaxDetectors'));
+	}
+
 }

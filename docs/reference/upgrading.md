@@ -4,7 +4,7 @@ The CakePHP 5 branch uses current component/helper APIs. Follow [installation](.
 
 ## Configuration and templates
 
-The global `Flash` configuration now supplies defaults to both the component and helper. Existing explicit load options take precedence. Merge the restored `config/app.example.php` entry into your application configuration when you want shared defaults. `TransientFlash` holds messages at runtime and should not be copied into application configuration.
+The global `Flash` configuration now supplies defaults to both the component and helper. Existing explicit load options take precedence. Custom `order` and `ajaxDetectors` lists now replace their built-in lists instead of appending to them. Merge the restored `config/app.example.php` entry into your application configuration when you want shared defaults. `TransientFlash` holds messages at runtime and should not be copied into application configuration.
 
 Keep `parent::initialize()` and the `void` return type when updating `AppController` and `AppView`. Provide all five application templates, including `info.php`.
 
