@@ -10,7 +10,7 @@ Set shared defaults under `Flash` in your application's `config/app.php` or `con
 ],
 ```
 
-Merge this entry into the existing configuration array. Both the component and helper read it when they load, so one `key` and `limit` apply to both. See the complete [example configuration](https://github.com/dereuromark/cakephp-flash/blob/master/config/app.example.php).
+Merge this entry into the existing configuration array. Both the component and helper read it when they load, so one `key` and `limit` apply to both. See the complete [example configuration](https://github.com/dereuromark/cakephp-flash/blob/cake6/config/app.example.php).
 
 For runtime setup before loading either class, the equivalent is:
 

@@ -29,7 +29,7 @@ class FlashHelper extends Helper {
 	 *
 	 * @var array<string, mixed>
 	 */
-	protected array $_defaultConfig = [
+	protected array $defaultConfig = [
 		'key' => 'flash',
 		'element' => 'default',
 		'params' => [],
@@ -42,7 +42,7 @@ class FlashHelper extends Helper {
 	 * @param array<string, mixed> $config Helper options override shared Flash configuration.
 	 */
 	public function __construct(View $view, array $config = []) {
-		$defaults = array_intersect_key((array)Configure::read('Flash'), $this->_defaultConfig + ['plugin' => null, 'escape' => null]);
+		$defaults = array_intersect_key((array)Configure::read('Flash'), $this->defaultConfig + ['plugin' => null, 'escape' => null]);
 		$options = $config + $defaults;
 		parent::__construct($view, $options);
 		if (array_key_exists('order', $options)) {
@@ -74,7 +74,7 @@ class FlashHelper extends Helper {
 		$options += ['types' => []];
 
 		// Get the messages from the session
-		$messages = (array)$this->_View->getRequest()->getSession()->read('Flash.' . $key);
+		$messages = (array)$this->View->getRequest()->getSession()->read('Flash.' . $key);
 		$transientMessages = (array)Configure::read('TransientFlash.' . $key);
 		if ($transientMessages) {
 			$messages = array_merge($messages, $transientMessages);
@@ -92,16 +92,16 @@ class FlashHelper extends Helper {
 				'plugin' => false,
 			];
 
-			$html .= $this->_View->element($message['element'], $message, $options);
+			$html .= $this->View->element($message['element'], $message, $options);
 		}
 
 		if ($options['types']) {
-			$messages = (array)$this->_View->getRequest()->getSession()->read('Flash.' . $key);
+			$messages = (array)$this->View->getRequest()->getSession()->read('Flash.' . $key);
 			foreach ($messages as $index => $message) {
 				if (!in_array($this->messageType($message), $options['types'], true)) {
 					continue;
 				}
-				$this->_View->getRequest()->getSession()->delete('Flash.' . $key . '.' . $index);
+				$this->View->getRequest()->getSession()->delete('Flash.' . $key . '.' . $index);
 			}
 			foreach ($transientMessages as $index => $message) {
 				if (!in_array($this->messageType($message), $options['types'], true)) {
@@ -111,7 +111,7 @@ class FlashHelper extends Helper {
 			}
 
 		} else {
-			$this->_View->getRequest()->getSession()->delete('Flash.' . $key);
+			$this->View->getRequest()->getSession()->delete('Flash.' . $key);
 			Configure::delete('TransientFlash.' . $key);
 		}
 
@@ -180,7 +180,7 @@ class FlashHelper extends Helper {
 			'plugin' => false,
 		];
 
-		return $this->_View->element($messageOptions['element'], $messageOptions, $options);
+		return $this->View->element($messageOptions['element'], $messageOptions, $options);
 	}
 
 	/**
