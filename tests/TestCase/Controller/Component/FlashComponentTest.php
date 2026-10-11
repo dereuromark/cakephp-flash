@@ -305,4 +305,12 @@ class FlashComponentTest extends TestCase {
 		$this->Controller->loadComponent('Flash.Flash', ['limit' => 0]);
 	}
 
+	public function testConfiguredPluginStaysIdempotentDuringAjaxMessageMerges(): void {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->Controller->Flash->setConfig('plugin', 'Custom');
+		$this->Controller->Flash->message('Ajax message');
+
+		$this->assertSame('Custom.flash/info', Configure::read('TransientFlash.flash.0.element'));
+	}
+
 }

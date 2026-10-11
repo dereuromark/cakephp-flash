@@ -236,11 +236,11 @@ class FlashHelper extends Helper {
 
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
-		if (!empty($options['plugin'])) {
-			$options['element'] = $options['plugin'] . '.' . $options['element'];
-			unset($options['plugin']);
-		}
 		$options += $this->getConfig();
+		if (!empty($options['plugin']) && !str_contains($options['element'], '.')) {
+			$options['element'] = $options['plugin'] . '.' . $options['element'];
+		}
+		unset($options['plugin']);
 		if (isset($options['escape']) && !isset($options['params']['escape'])) {
 			$options['params']['escape'] = $options['escape'];
 		}

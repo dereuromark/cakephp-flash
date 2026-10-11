@@ -200,7 +200,6 @@ class FlashComponent extends Component {
 	 */
 	public function set(Throwable|string $message, array $options = []): void {
 		$options = $this->_mergeOptions($options);
-		$options += $this->getConfig();
 
 		if ($this->ajaxHandling()) {
 			$this->transientMessage($message, $options);
@@ -263,12 +262,14 @@ class FlashComponent extends Component {
 
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
-		if (!empty($options['plugin'])) {
+		$config = (array)$this->getConfig();
+		$options += $config;
+		if (!empty($options['plugin']) && !str_contains($options['element'], '.')) {
 			$options['element'] = $options['plugin'] . '.' . $options['element'];
-			unset($options['plugin']);
 		}
+		unset($options['plugin']);
 
-		return $options + (array)$this->getConfig();
+		return $options;
 	}
 
 	/**
