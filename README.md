@@ -1,10 +1,10 @@
 # CakePHP Flash Plugin
 
-[![CI](https://github.com/dereuromark/cakephp-flash/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/dereuromark/cakephp-flash/actions/workflows/ci.yml?query=branch%3Amaster)
-[![Coverage Status](https://img.shields.io/codecov/c/github/dereuromark/cakephp-flash/master.svg)](https://codecov.io/github/dereuromark/cakephp-flash/branch/master)
+[![CI](https://github.com/dereuromark/cakephp-flash/actions/workflows/ci.yml/badge.svg?branch=cake6)](https://github.com/dereuromark/cakephp-flash/actions/workflows/ci.yml?query=branch%3Acake6)
+[![Coverage Status](https://img.shields.io/codecov/c/github/dereuromark/cakephp-flash/cake6.svg)](https://codecov.io/github/dereuromark/cakephp-flash/branch/cake6)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat)](https://phpstan.org/)
 [![Latest Stable Version](https://poser.pugx.org/dereuromark/cakephp-flash/v/stable.svg)](https://packagist.org/packages/dereuromark/cakephp-flash)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.2-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.5-8892BF.svg)](https://php.net/)
 [![License](https://poser.pugx.org/dereuromark/cakephp-flash/license.svg)](LICENSE)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-flash/d/total.svg)](https://packagist.org/packages/dereuromark/cakephp-flash)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-purple.svg?style=flat-square)](https://github.com/php-fig-rectified/fig-rectified-standards)

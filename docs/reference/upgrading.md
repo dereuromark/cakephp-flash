@@ -1,6 +1,6 @@
 # Upgrading
 
-The CakePHP 5 branch uses current component/helper APIs. Follow [installation](../guide/installation.md) and review [composer.json](https://github.com/dereuromark/cakephp-flash/blob/master/composer.json) before updating an older application.
+The CakePHP 6 development branch uses current component/helper APIs. Follow [installation](../guide/installation.md) and review [composer.json](https://github.com/dereuromark/cakephp-flash/blob/cake6/composer.json) before updating an older application.
 
 ## Configuration and templates
 
@@ -16,4 +16,4 @@ On AJAX requests, direct `set()` and `message()` now follow `noSessionOnAjax`, j
 
 Helper transient calls now retain supplied options. A configured helper key is used by a parameterless `render()`, and type filtering also recognizes ordinary CakePHP core flash entries.
 
-CakePHP 6 support is not declared. These changes keep the CakePHP 5 code ready for a separate compatibility upgrade once its requirements are known.
+The `cake6` branch runs against CakePHP 6. Application component and helper overrides use `$defaultConfig`, and helper overrides access their view through `$View`. The `master` branch remains available for CakePHP 5.

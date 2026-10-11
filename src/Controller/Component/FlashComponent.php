@@ -43,7 +43,7 @@ class FlashComponent extends Component {
 	 *
 	 * @var array<string, mixed>
 	 */
-	protected array $_defaultConfig = [
+	protected array $defaultConfig = [
 		'key' => 'flash',
 		'element' => 'default',
 		'params' => [],
@@ -54,7 +54,7 @@ class FlashComponent extends Component {
 	/**
 	 * @var array<string, mixed>
 	 */
-	protected array $_defaultConfigExt = [
+	protected array $defaultConfigExt = [
 		// Max message limit per key - first in, first out
 		'limit' => 10,
 		// Set to empty string to disable headers for AJAX requests.
@@ -72,7 +72,7 @@ class FlashComponent extends Component {
 	 * @param array<string, mixed> $config Array of config.
 	 */
 	public function __construct(ComponentRegistry $registry, array $config = []) {
-		$this->_defaultConfig += $this->_defaultConfigExt;
+		$this->defaultConfig += $this->defaultConfigExt;
 		$defaults = (array)Configure::read('Flash');
 		$options = $config + $defaults;
 		parent::__construct($registry, $options);
