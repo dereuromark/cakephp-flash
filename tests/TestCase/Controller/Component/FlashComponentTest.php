@@ -6,6 +6,8 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Http\ServerRequest;
 use Cake\TestSuite\TestCase;
+use Error;
+use Laminas\Diactoros\Uri;
 use TestApp\Controller\FlashComponentTestController;
 
 class FlashComponentTest extends TestCase {
@@ -34,13 +36,15 @@ class FlashComponentTest extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		Configure::delete('TransientFlash');
 		$this->Controller = null;
 	}
 
 	/**
 	 * @return void
 	 */
-	public function testTransientMessage() {
+	public function testTransientMessage(): void {
 		$this->Controller->Flash->transientMessage('xyz', 'success');
 
 		$res = Configure::read('TransientFlash.flash');
@@ -52,7 +56,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testMessage() {
+	public function testMessage(): void {
 		$this->Controller->Flash->message('efg');
 
 		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
@@ -66,7 +70,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testMagic() {
+	public function testMagic(): void {
 		$this->Controller->Flash->error('Some Error Message');
 
 		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
@@ -80,7 +84,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testCoreHook() {
+	public function testCoreHook(): void {
 		$this->Controller->Flash->set('Some Message');
 
 		$res = $this->Controller->getRequest()->getSession()->read('Flash.flash');
@@ -92,7 +96,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testAjax() {
+	public function testAjax(): void {
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		$this->Controller->getRequest()->getSession()->write('Foo', 'bar');
 
@@ -112,7 +116,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testCrudFlash() {
+	public function testCrudFlash(): void {
 		$this->Controller->Flash->set('efg', [
 			'key' => 'flash',
 			'element' => 'default',
@@ -135,7 +139,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testBeforeRedirect() {
+	public function testBeforeRedirect(): void {
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
 		$this->Controller->Flash->setConfig('headerOnRedirect', true);
@@ -159,7 +163,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testBeforeRedirectNonAjax() {
+	public function testBeforeRedirectNonAjax(): void {
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
 		$this->Controller->Flash->setConfig('headerOnRedirect', true);
@@ -181,7 +185,7 @@ class FlashComponentTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testBeforeRedirectDisabledByDefault() {
+	public function testBeforeRedirectDisabledByDefault(): void {
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
 		// headerOnRedirect is false by default
@@ -199,6 +203,70 @@ class FlashComponentTest extends TestCase {
 			'Content-Type' => ['text/html; charset=UTF-8'],
 		];
 		$this->assertSame($expected, $result);
+	}
+
+	public function testTypedMessagesRespectSessionLimit(): void {
+		$this->Controller->Flash->setConfig('limit', 2);
+		$this->Controller->Flash->success('first');
+		$this->Controller->Flash->success('second');
+		$this->Controller->Flash->success('third');
+
+		$messages = $this->Controller->getRequest()->getSession()->read('Flash.flash');
+		$this->assertSame(['second', 'third'], array_column($messages, 'message'));
+	}
+
+	public function testTransientLimitRemainsExact(): void {
+		$this->Controller->Flash->setConfig('limit', 2);
+		foreach (['first', 'second', 'third'] as $message) {
+			$this->Controller->Flash->transientInfo($message);
+		}
+
+		$this->assertSame(['second', 'third'], array_column(Configure::read('TransientFlash.flash'), 'message'));
+	}
+
+	public function testDuplicateFalseAppliesToBothMessageStores(): void {
+		$this->Controller->Flash->setConfig('duplicate', false);
+		$this->Controller->Flash->success('same');
+		$this->Controller->Flash->success('same');
+		$this->Controller->Flash->transientInfo('same');
+		$this->Controller->Flash->transientInfo('same');
+
+		$this->assertCount(1, $this->Controller->getRequest()->getSession()->read('Flash.flash'));
+		$this->assertCount(1, Configure::read('TransientFlash.flash'));
+	}
+
+	public function testExplicitSetUsesTransientAjaxStorage(): void {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->Controller->Flash->set('Ajax message');
+
+		$this->assertNull($this->Controller->getRequest()->getSession()->read('Flash.flash'));
+		$this->assertSame('Ajax message', Configure::read('TransientFlash.flash.0.message'));
+	}
+
+	public function testTransientThrowableContainsOnlyItsMessageAndCode(): void {
+		$this->Controller->Flash->transientMessage(new Error('Failure', 12), ['escape' => false]);
+
+		$this->assertSame('Failure', Configure::read('TransientFlash.flash.0.message'));
+		$this->assertSame(['code' => 12, 'escape' => false], Configure::read('TransientFlash.flash.0.params'));
+	}
+
+	public function testPluginElementKeepsItsMessageType(): void {
+		$this->Controller->Flash->success('Plugin message', ['plugin' => 'Custom']);
+
+		$messages = $this->Controller->getRequest()->getSession()->read('Flash.flash');
+		$this->assertSame('success', $messages[0]['type']);
+		$this->assertSame('Custom.flash/success', $messages[0]['element']);
+	}
+
+	public function testRedirectAcceptsUriObjects(): void {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->Controller->Flash->setConfig('headerOnRedirect', true);
+		$this->Controller->Flash->success('Redirected');
+
+		$response = $this->Controller->redirect(new Uri('/next'));
+
+		$this->assertSame(302, $response->getStatusCode());
+		$this->assertStringContainsString('Redirected', $response->getHeaderLine('X-Flash'));
 	}
 
 }

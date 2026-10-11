@@ -11,7 +11,7 @@
 
 A plugin for more powerful flash messages in your CakePHP apps.
 
-This branch is for **CakePHP 5.1+**. See [version map](https://github.com/dereuromark/cakephp-flash/wiki#cakephp-version-map) for details.
+See [composer.json](composer.json) for the supported versions and the [version map](https://github.com/dereuromark/cakephp-flash/wiki#cakephp-version-map) for older branches.
 
 ## Features
 
@@ -25,4 +25,4 @@ This branch is for **CakePHP 5.1+**. See [version map](https://github.com/dereur
 See [sandbox demos](https://sandbox.dereuromark.de/sandbox/flash-examples).
 
 ## Documentation
-See [/docs](docs/README.md).
+Read the [documentation website](https://dereuromark.github.io/cakephp-flash/), starting with [installation](https://dereuromark.github.io/cakephp-flash/guide/installation) and [Getting started](https://dereuromark.github.io/cakephp-flash/guide/getting-started).
