@@ -1,18 +1,37 @@
 # Configuration
 
-Pass options when loading the component and helper. The plugin does not read a global `Flash` array from `config/app.php`.
+Set shared defaults under `Flash` in your application's `config/app.php` or `config/app_local.php`:
 
 ```php
-$this->loadComponent('Flash.Flash', ['limit' => 5]);
+'Flash' => [
+    'key' => 'notifications',
+    'limit' => 5,
+    'params' => ['class' => 'notice'],
+],
 ```
 
-In `AppView::initialize()`:
+Merge this entry into the existing configuration array. Both the component and helper read it when they load, so one `key` and `limit` apply to both. See the complete [example configuration](https://github.com/dereuromark/cakephp-flash/blob/master/config/app.example.php).
+
+For runtime setup before loading either class, the equivalent is:
 
 ```php
-$this->loadHelper('Flash.Flash', ['limit' => 5]);
+Configure::write('Flash', [
+    'key' => 'notifications',
+    'limit' => 5,
+]);
 ```
 
-Configure the component and helper separately. They share the transient stack, so a helper append also trims controller transient entries to the helper limit. Use the same `key` and `limit` on both when changing their defaults.
+Import `Cake\Core\Configure` when using that form.
+
+Explicit component or helper load options override shared values:
+
+```php
+$this->loadComponent('Flash.Flash', ['limit' => 3]);
+```
+
+The helper still uses the shared limit of five unless you override it too. They share the transient stack, so a helper append trims existing controller entries to the helper's limit. Use matching settings unless you need different behavior.
+
+Precedence is load options, shared `Flash` settings, then built-in defaults. An explicit array option such as `params` replaces the shared value for that option. Configure defaults before loading the classes; changing `Configure` afterwards does not update existing instances.
 
 ## Component
 

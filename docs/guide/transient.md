@@ -26,4 +26,4 @@ For a message at a specific point in a template, render it directly:
 
 Direct rendering returns HTML immediately and does not add a message to either stack. The helper's transient methods accept their options, including `key`, `params` and `escape`; its configured limit applies per transient key.
 
-The `TransientFlash` configuration namespace is runtime storage. Do not pre-populate it in `config/app.php`. Configure the [component and helper](../reference/configuration.md) through their load options.
+The `TransientFlash` configuration namespace is runtime storage. Do not pre-populate it in `config/app.php`. Use the shared `Flash` key or individual load options for [configuration](../reference/configuration.md).

@@ -42,6 +42,7 @@ class FlashHelperTest extends TestCase {
 		parent::tearDown();
 
 		Configure::delete('TransientFlash');
+		Configure::delete('Flash');
 		$this->Flash = null;
 	}
 
@@ -165,6 +166,17 @@ class FlashHelperTest extends TestCase {
 		$this->expectException(InvalidArgumentException::class);
 
 		new FlashHelper(new View(), ['limit' => 0]);
+	}
+
+	public function testSharedConfigurationAppliesToHelperTransientMessages(): void {
+		Configure::write('Flash', ['key' => 'shared', 'limit' => 1, 'order' => ['info', 'error']]);
+		$helper = new FlashHelper(new View());
+		$helper->transientInfo('first');
+		$helper->transientInfo('second');
+
+		$this->assertSame(['info', 'error'], $helper->getConfig('order'));
+		$this->assertSame(['second'], array_column(Configure::read('TransientFlash.shared'), 'message'));
+		$this->assertStringContainsString('second', $helper->render());
 	}
 
 }

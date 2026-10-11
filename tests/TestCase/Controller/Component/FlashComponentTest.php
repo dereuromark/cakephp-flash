@@ -6,7 +6,9 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Http\ServerRequest;
 use Cake\TestSuite\TestCase;
+use Cake\View\View;
 use Error;
+use Flash\View\Helper\FlashHelper;
 use InvalidArgumentException;
 use Laminas\Diactoros\Uri;
 use TestApp\Controller\FlashComponentTestController;
@@ -39,6 +41,7 @@ class FlashComponentTest extends TestCase {
 
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 		Configure::delete('TransientFlash');
+		Configure::delete('Flash');
 		$this->Controller = null;
 	}
 
@@ -311,6 +314,43 @@ class FlashComponentTest extends TestCase {
 		$this->Controller->Flash->message('Ajax message');
 
 		$this->assertSame('Custom.flash/info', Configure::read('TransientFlash.flash.0.element'));
+	}
+
+	public function testSharedConfigurationKeepsComponentAndHelperOnTheSameStack(): void {
+		Configure::write('Flash', [
+			'key' => 'notifications',
+			'limit' => 2,
+			'params' => ['shared' => true],
+		]);
+		$this->Controller->components()->unload('Flash');
+		$this->Controller->loadComponent('Flash.Flash');
+		$helper = new FlashHelper(new View($this->Controller->getRequest()));
+
+		foreach (['first', 'second', 'third'] as $message) {
+			$this->Controller->Flash->info($message);
+		}
+		$this->assertSame(2, $helper->getConfig('limit'));
+		$this->assertSame(['shared' => true], $helper->getConfig('params'));
+		$this->assertCount(2, $this->Controller->getRequest()->getSession()->read('Flash.notifications'));
+		$html = $helper->render();
+		$this->assertStringNotContainsString('first', $html);
+		$this->assertStringContainsString('second', $html);
+		$this->assertStringContainsString('third', $html);
+		$this->assertNull($this->Controller->getRequest()->getSession()->read('Flash.notifications'));
+	}
+
+	public function testLoadOptionsOverrideSharedConfiguration(): void {
+		Configure::write('Flash', ['key' => 'shared', 'limit' => 5, 'params' => ['shared' => true]]);
+		$this->Controller->components()->unload('Flash');
+		$this->Controller->loadComponent('Flash.Flash', ['key' => 'controller', 'limit' => 1, 'params' => ['local' => true]]);
+		$helper = new FlashHelper(new View($this->Controller->getRequest()), ['key' => 'view', 'limit' => 3]);
+
+		$this->assertSame('controller', $this->Controller->Flash->getConfig('key'));
+		$this->assertSame(1, $this->Controller->Flash->getConfig('limit'));
+		$this->assertSame(['local' => true], $this->Controller->Flash->getConfig('params'));
+		$this->assertSame('view', $helper->getConfig('key'));
+		$this->assertSame(3, $helper->getConfig('limit'));
+		$this->assertSame(['shared' => true], $helper->getConfig('params'));
 	}
 
 }

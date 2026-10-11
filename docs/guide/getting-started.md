@@ -58,4 +58,6 @@ $this->Flash->success('Your changes were saved.');
 return $this->redirect(['action' => 'index']);
 ```
 
+To share a stack key or limit between the component and helper, use the [Flash configuration key](../reference/configuration.md).
+
 For a message that only belongs to the current response, use [transient messages](./transient.md). For `fetch()` requests, follow [AJAX responses](./ajax.md).

@@ -73,7 +73,8 @@ class FlashComponent extends Component {
 	 */
 	public function __construct(ComponentRegistry $registry, array $config = []) {
 		$this->_defaultConfig += $this->_defaultConfigExt;
-		parent::__construct($registry, $config);
+		$defaults = (array)Configure::read('Flash');
+		parent::__construct($registry, $config + $defaults);
 	}
 
 	public function initialize(array $config): void {
