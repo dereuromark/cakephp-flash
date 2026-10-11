@@ -25,4 +25,4 @@ See [composer.json](composer.json) for the supported versions and the [version m
 See [sandbox demos](https://sandbox.dereuromark.de/sandbox/flash-examples).
 
 ## Documentation
-Read the [documentation website](https://dereuromark.github.io/cakephp-flash/), starting with [installation](https://dereuromark.github.io/cakephp-flash/guide/installation) and [Getting started](https://dereuromark.github.io/cakephp-flash/guide/getting-started).
+For this development branch, start with [installation](docs/guide/installation.md) and [getting started](docs/guide/getting-started.md). The [documentation website](https://dereuromark.github.io/cakephp-flash/) covers the released CakePHP 5 branch.

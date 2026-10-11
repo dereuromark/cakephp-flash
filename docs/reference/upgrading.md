@@ -16,4 +16,4 @@ On AJAX requests, direct `set()` and `message()` now follow `noSessionOnAjax`, j
 
 Helper transient calls now retain supplied options. A configured helper key is used by a parameterless `render()`, and type filtering also recognizes ordinary CakePHP core flash entries.
 
-The `cake6` branch runs against CakePHP 6. Application component and helper overrides use `$defaultConfig`, and helper overrides access their view through `$View`. The `master` branch remains available for CakePHP 5.
+The `cake6` branch runs against CakePHP 6. Application component and helper overrides use `$defaultConfig` and `$defaultConfigExt`, and helper overrides access their view through `$View`. The `master` branch remains available for CakePHP 5.
