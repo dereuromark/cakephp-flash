@@ -6,6 +6,7 @@ use BadMethodCallException;
 use Cake\Core\Configure;
 use Cake\Http\Exception\InternalErrorException;
 use Cake\View\Helper;
+use Cake\View\View;
 use InvalidArgumentException;
 
 /**
@@ -35,6 +36,19 @@ class FlashHelper extends Helper {
 		'order' => ['error', 'warning', 'success', 'info'],
 		'limit' => 10, // Max message limit per key - first in, first out
 	];
+
+	/**
+	 * @param \Cake\View\View $view View instance.
+	 * @param array<string, mixed> $config Helper options override shared Flash configuration.
+	 */
+	public function __construct(View $view, array $config = []) {
+		$defaults = array_intersect_key((array)Configure::read('Flash'), $this->_defaultConfig + ['plugin' => null, 'escape' => null]);
+		$options = $config + $defaults;
+		parent::__construct($view, $options);
+		if (array_key_exists('order', $options)) {
+			$this->setConfig('order', $options['order'], false);
+		}
+	}
 
 	public function initialize(array $config): void {
 		if ((int)$this->getConfig('limit') < 1) {

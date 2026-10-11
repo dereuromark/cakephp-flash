@@ -73,7 +73,12 @@ class FlashComponent extends Component {
 	 */
 	public function __construct(ComponentRegistry $registry, array $config = []) {
 		$this->_defaultConfig += $this->_defaultConfigExt;
-		parent::__construct($registry, $config);
+		$defaults = (array)Configure::read('Flash');
+		$options = $config + $defaults;
+		parent::__construct($registry, $options);
+		if (array_key_exists('ajaxDetectors', $options)) {
+			$this->setConfig('ajaxDetectors', $options['ajaxDetectors'], false);
+		}
 	}
 
 	public function initialize(array $config): void {
