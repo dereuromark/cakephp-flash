@@ -36,6 +36,12 @@ class FlashHelper extends Helper {
 		'limit' => 10, // Max message limit per key - first in, first out
 	];
 
+	public function initialize(array $config): void {
+		if ((int)$this->getConfig('limit') < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
+		}
+	}
+
 	/**
 	 * Displays flash messages.
 	 *
@@ -228,10 +234,12 @@ class FlashHelper extends Helper {
 			];
 		}
 
-		$options += [
-			'type' => 'info',
-			'element' => $options['type'],
-		];
+		$options += ['type' => 'info'];
+		$options += ['element' => $options['type']];
+		if (!empty($options['plugin'])) {
+			$options['element'] = $options['plugin'] . '.' . $options['element'];
+			unset($options['plugin']);
+		}
 		$options += $this->getConfig();
 		if (isset($options['escape']) && !isset($options['params']['escape'])) {
 			$options['params']['escape'] = $options['escape'];

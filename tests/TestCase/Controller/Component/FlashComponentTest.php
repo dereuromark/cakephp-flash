@@ -7,6 +7,7 @@ use Cake\Event\Event;
 use Cake\Http\ServerRequest;
 use Cake\TestSuite\TestCase;
 use Error;
+use InvalidArgumentException;
 use Laminas\Diactoros\Uri;
 use TestApp\Controller\FlashComponentTestController;
 
@@ -267,6 +268,41 @@ class FlashComponentTest extends TestCase {
 
 		$this->assertSame(302, $response->getStatusCode());
 		$this->assertStringContainsString('Redirected', $response->getHeaderLine('X-Flash'));
+	}
+
+	public function testDirectAjaxResponseGetsHeaderAtShutdown(): void {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->Controller->Flash->success('Saved');
+		$this->Controller->setResponse($this->Controller->getResponse()->withType('json')->withStringBody('{"saved":true}'));
+
+		$this->Controller->shutdownProcess();
+
+		$this->assertStringContainsString('Saved', $this->Controller->getResponse()->getHeaderLine('X-Flash'));
+		$this->assertSame('{"saved":true}', (string)$this->Controller->getResponse()->getBody());
+	}
+
+	public function testShutdownKeepsRedirectHeadersDisabledByDefault(): void {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->Controller->Flash->success('Saved');
+		$this->Controller->redirect('/next');
+		$this->Controller->shutdownProcess();
+
+		$this->assertFalse($this->Controller->getResponse()->hasHeader('X-Flash'));
+	}
+
+	public function testDirectPluginOptionSelectsPluginElement(): void {
+		$this->Controller->Flash->message('Saved', ['type' => 'success', 'plugin' => 'Custom']);
+		$this->Controller->Flash->transientMessage('Preview', ['type' => 'info', 'plugin' => 'Custom']);
+
+		$this->assertSame('Custom.flash/success', $this->Controller->getRequest()->getSession()->read('Flash.flash.0.element'));
+		$this->assertSame('Custom.flash/info', Configure::read('TransientFlash.flash.0.element'));
+	}
+
+	public function testInvalidLimitFailsWhenComponentLoads(): void {
+		$this->Controller->components()->unload('Flash');
+		$this->expectException(InvalidArgumentException::class);
+
+		$this->Controller->loadComponent('Flash.Flash', ['limit' => 0]);
 	}
 
 }

@@ -8,6 +8,7 @@ use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use Flash\View\Helper\FlashHelper;
+use InvalidArgumentException;
 
 class FlashHelperTest extends TestCase {
 
@@ -151,6 +152,19 @@ class FlashHelperTest extends TestCase {
 
 		$this->assertStringContainsString('Core message', $helper->render('flash', ['types' => ['error']]));
 		$this->assertEmpty($view->getRequest()->getSession()->read('Flash.flash'));
+	}
+
+	public function testArrayOptionsWithoutTypeUseInfo(): void {
+		$this->assertStringContainsString('<b>Direct</b>', $this->Flash->message('<b>Direct</b>', ['escape' => false]));
+		$this->Flash->transientMessage('Queued', ['key' => 'custom']);
+
+		$this->assertStringContainsString('Queued', $this->Flash->render('custom'));
+	}
+
+	public function testInvalidLimitFailsWhenHelperLoads(): void {
+		$this->expectException(InvalidArgumentException::class);
+
+		new FlashHelper(new View(), ['limit' => 0]);
 	}
 
 }

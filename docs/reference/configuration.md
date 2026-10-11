@@ -12,7 +12,7 @@ In `AppView::initialize()`:
 $this->loadHelper('Flash.Flash', ['limit' => 5]);
 ```
 
-Component and helper settings are independent. Use the same `key` on both when changing the default stack.
+Configure the component and helper separately. They share the transient stack, so a helper append also trims controller transient entries to the helper limit. Use the same `key` and `limit` on both when changing their defaults.
 
 ## Component
 
@@ -28,7 +28,7 @@ Component and helper settings are independent. Use the same `key` on both when c
 | `noSessionOnAjax` | `true` | Route normal AJAX message calls into transient storage. |
 | `ajaxDetectors` | `['ajax']` | Request detectors used for AJAX handling and header output. |
 
-Typed calls select their corresponding element; `message()` defaults to `info`. Individual calls accept `type`, `element`, `plugin`, `key`, `params` and `escape`. Session calls also accept `clear` and `duplicate`. Controller transient calls support `duplicate`.
+Typed calls select their corresponding element; `message()` defaults to `info`. Direct `set()`, `message()` and `transientMessage()` calls accept `type`, `element`, `plugin`, `key`, `params` and `escape`. Typed methods choose their type and element; they also accept `plugin`, `key`, `params` and `escape`. Session calls also accept `clear` and `duplicate`. Controller transient calls support `duplicate`.
 
 A `Throwable` passed to the component becomes its message text, with its code stored in `params.code` unless you supplied that parameter yourself.
 
@@ -37,7 +37,7 @@ A `Throwable` passed to the component becomes its message text, with its code st
 | Option | Default | Behavior |
 | --- | --- | --- |
 | `key` | `flash` | Stack used when `render()` has no explicit key. |
-| `limit` | `10` | Newest helper transient entries retained per key; use a positive integer. |
+| `limit` | `10` | Newest transient entries retained per key when the helper appends; use a positive integer. |
 | `order` | `['error', 'warning', 'success', 'info']` | Type order when rendering; other types follow. |
 | `params` | `[]` | Default element parameters. |
 

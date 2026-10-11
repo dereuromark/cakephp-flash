@@ -10,9 +10,9 @@ Keep `parent::initialize()` and the `void` return type when updating `AppControl
 
 ## Message behavior
 
-All component message paths now enforce the configured stack limit. Transient stacks retain exactly that number of messages. `duplicate: false` suppresses identical controller entries in either store.
+Use a positive stack limit. A zero or negative limit now fails when the component or helper loads. All component message paths enforce the configured stack limit. Transient stacks retain exactly that number of messages. `duplicate: false` suppresses identical controller entries in either store.
 
-On AJAX requests, direct `set()` and `message()` now follow `noSessionOnAjax`, just as typed calls do. Component transient calls accept `Throwable` and normalize it to message text and code. Plugin-specific elements preserve their message type.
+On AJAX requests, direct `set()` and `message()` now follow `noSessionOnAjax`, just as typed calls do. Component transient calls accept `Throwable` and normalize it to message text and code. Plugin-specific elements preserve their message type, and direct calls now honor the `plugin` option. AJAX headers also work for actions returning a response directly.
 
 Helper transient calls now retain supplied options. A configured helper key is used by a parameterless `render()`, and type filtering also recognizes ordinary CakePHP core flash entries.
 

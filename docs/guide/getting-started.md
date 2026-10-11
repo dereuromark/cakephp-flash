@@ -1,6 +1,6 @@
 # Getting started
 
-After [installation](./installation.md), use the plugin component in `src/Controller/AppController.php`. Keep your other initialization code.
+After [installation](./installation.md), use the plugin component in `src/Controller/AppController.php`. Replace an existing `$this->loadComponent('Flash');` line with the plugin line below; keep your other initialization code.
 
 ```php
 public function initialize(): void {
@@ -10,7 +10,7 @@ public function initialize(): void {
 }
 ```
 
-Use the matching helper in `src/View/AppView.php`:
+Use the matching helper in `src/View/AppView.php`. Replace an existing explicit `loadHelper('Flash')` call rather than loading the same alias twice:
 
 ```php
 public function initialize(): void {

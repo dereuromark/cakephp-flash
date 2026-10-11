@@ -1,6 +1,6 @@
 # AJAX responses
 
-For requests detected as AJAX, normal component calls such as `success()` and `set()` use the transient stack by default. Explicit transient calls work too. The component sends messages from its configured key in an `X-Flash` header before rendering the response.
+For requests detected as AJAX, normal component calls such as `success()` and `set()` use the transient stack by default. Explicit transient calls work too. The component sends messages from its configured key in an `X-Flash` header when rendering the response or during controller shutdown. This also covers actions returning a response directly.
 
 The response body still belongs to your controller action. The plugin does not generate a JSON response body.
 

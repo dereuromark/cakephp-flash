@@ -76,6 +76,20 @@ class FlashComponent extends Component {
 		parent::__construct($registry, $config);
 	}
 
+	public function initialize(array $config): void {
+		if ((int)$this->getConfig('limit') < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
+		}
+	}
+
+	public function afterFilter(EventInterface $event): void {
+		$response = $this->getController()->getResponse();
+		if ($response->getStatusCode() >= 300 && $response->getStatusCode() < 400 && !$this->getConfig('headerOnRedirect')) {
+			return;
+		}
+		$this->addFlashHeader($response);
+	}
+
 	/**
 	 * Called before a redirect is performed.
 	 *
@@ -249,6 +263,10 @@ class FlashComponent extends Component {
 
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
+		if (!empty($options['plugin'])) {
+			$options['element'] = $options['plugin'] . '.' . $options['element'];
+			unset($options['plugin']);
+		}
 
 		return $options + (array)$this->getConfig();
 	}
@@ -273,7 +291,7 @@ class FlashComponent extends Component {
 	 * These flash messages are not persisted across requests (only available for current view),
 	 * will be merged into the session flash ones prior to output.
 	 *
-	 * @param string $message Message to output.
+	 * @param \Throwable|string $message Message to output.
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
