@@ -6,6 +6,7 @@ use BadMethodCallException;
 use Cake\Core\Configure;
 use Cake\Http\Exception\InternalErrorException;
 use Cake\View\Helper;
+use InvalidArgumentException;
 
 /**
  * Flash helper
@@ -32,8 +33,14 @@ class FlashHelper extends Helper {
 		'element' => 'default',
 		'params' => [],
 		'order' => ['error', 'warning', 'success', 'info'],
-		'limit' => 10, // Max message limit per type - first in, first out
+		'limit' => 10, // Max message limit per key - first in, first out
 	];
+
+	public function initialize(array $config): void {
+		if ((int)$this->getConfig('limit') < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
+		}
+	}
 
 	/**
 	 * Displays flash messages.
@@ -41,14 +48,15 @@ class FlashHelper extends Helper {
 	 * Options:
 	 * - types: Types to render out, defaults to all
 	 *
-	 * @param string $key The [Flash.]key you are rendering in the view.
+	 * @param string|null $key The [Flash.]key you are rendering in the view.
 	 * @param array<string, mixed> $options Additional options to use for the creation of this flash message.
 	 *    Supports the 'params', and 'element' keys that are used in the helper.
 	 * @throws \UnexpectedValueException If value for flash settings key is not an array.
 	 * @return string|null Rendered flash message or null if flash key does not exist
 	 *   in session.
 	 */
-	public function render(string $key = 'flash', array $options = []): ?string {
+	public function render(?string $key = null, array $options = []): ?string {
+		$key ??= $this->getConfig('key');
 		$options += ['types' => []];
 
 		// Get the messages from the session
@@ -61,7 +69,7 @@ class FlashHelper extends Helper {
 
 		$html = '';
 		foreach ($messages as $message) {
-			if ($options['types'] && !in_array($message['type'], $options['types'], true)) {
+			if ($options['types'] && !in_array($this->messageType($message), $options['types'], true)) {
 				continue;
 			}
 
@@ -76,13 +84,13 @@ class FlashHelper extends Helper {
 		if ($options['types']) {
 			$messages = (array)$this->_View->getRequest()->getSession()->read('Flash.' . $key);
 			foreach ($messages as $index => $message) {
-				if (!in_array($message['type'], $options['types'], true)) {
+				if (!in_array($this->messageType($message), $options['types'], true)) {
 					continue;
 				}
 				$this->_View->getRequest()->getSession()->delete('Flash.' . $key . '.' . $index);
 			}
 			foreach ($transientMessages as $index => $message) {
-				if (!in_array($message['type'], $options['types'], true)) {
+				if (!in_array($this->messageType($message), $options['types'], true)) {
 					continue;
 				}
 				Configure::delete('TransientFlash.' . $key . '.' . $index);
@@ -109,7 +117,7 @@ class FlashHelper extends Helper {
 		$result = [];
 		foreach ($order as $type) {
 			foreach ($messages as $k => $message) {
-				$messageType = (string)($message['type'] ?? (($pos = strrpos((string)$message['element'], '/')) !== false ? substr((string)$message['element'], $pos + 1) : $message['element']));
+				$messageType = $this->messageType($message);
 				if ($messageType !== $type) {
 					continue;
 				}
@@ -124,6 +132,20 @@ class FlashHelper extends Helper {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array<string, mixed> $message
+	 * @return string
+	 */
+	protected function messageType(array $message): string {
+		if (isset($message['type'])) {
+			return (string)$message['type'];
+		}
+		$element = (string)$message['element'];
+		$pos = strrpos($element, '/');
+
+		return $pos === false ? $element : substr($element, $pos + 1);
 	}
 
 	/**
@@ -159,14 +181,11 @@ class FlashHelper extends Helper {
 		$options['message'] = $message;
 
 		$messages = (array)Configure::read('TransientFlash.' . $options['key']);
-		// Keep the stack at most `limit` entries even if multiple writes piled up
-		// before this call (Issue #M3 sibling — single shift wasn't enough).
 		$limit = (int)$this->getConfig('limit');
-		$count = count($messages);
-		while ($count >= $limit) {
-			array_shift($messages);
-			$count--;
+		if ($limit < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
 		}
+		$messages = array_slice($messages, -($limit - 1), $limit - 1);
 		$messages[] = $options;
 		Configure::write('TransientFlash.' . $options['key'], $messages);
 	}
@@ -181,9 +200,6 @@ class FlashHelper extends Helper {
 	 * @return void
 	 */
 	public function __call(string $name, array $args): void {
-		// Match FlashComponent::__call: the literal `transient()` is a programmer error
-		// (no type suffix) and must throw rather than silently store under type=''
-		// (Issue #M4).
 		if ($name === 'transient' || !str_starts_with($name, 'transient')) {
 			throw new BadMethodCallException('Method ' . $name . '() does not exist. Select a type, e.g. transientInfo().');
 		}
@@ -198,6 +214,7 @@ class FlashHelper extends Helper {
 		$options = [
 			'type' => $type,
 		];
+		$options += (array)($args[1] ?? []);
 		$this->transientMessage($args[0], $options);
 	}
 
@@ -217,16 +234,20 @@ class FlashHelper extends Helper {
 			];
 		}
 
-		$options += [
-			'type' => 'info',
-			'element' => $options['type'],
-		];
+		$options += ['type' => 'info'];
+		$options += ['element' => $options['type']];
 		$options += $this->getConfig();
+		if (!empty($options['plugin']) && !str_contains($options['element'], '.')) {
+			$options['element'] = $options['plugin'] . '.' . $options['element'];
+		}
+		unset($options['plugin']);
+		if (isset($options['escape']) && !isset($options['params']['escape'])) {
+			$options['params']['escape'] = $options['escape'];
+		}
 
 		[$plugin, $element] = pluginSplit($options['element']);
 
-		// Idempotency: if the caller already passed `flash/error`, don't produce
-		// `flash/flash/error` (Issue #M5).
+		// Accept both short element names and an existing flash/ prefix.
 		if (str_starts_with((string)$element, 'flash/')) {
 			$element = substr((string)$element, 6);
 		}

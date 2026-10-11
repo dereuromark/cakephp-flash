@@ -11,8 +11,10 @@ use Cake\Http\Exception\InternalErrorException;
 use Cake\Http\Response;
 use Cake\Http\Session;
 use Cake\Utility\Inflector;
-use Exception;
+use InvalidArgumentException;
 use JsonException;
+use Psr\Http\Message\UriInterface;
+use Throwable;
 
 /**
  * A flash component to enhance flash message support with stackable messages, both
@@ -74,15 +76,29 @@ class FlashComponent extends Component {
 		parent::__construct($registry, $config);
 	}
 
+	public function initialize(array $config): void {
+		if ((int)$this->getConfig('limit') < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
+		}
+	}
+
+	public function afterFilter(EventInterface $event): void {
+		$response = $this->getController()->getResponse();
+		if ($response->getStatusCode() >= 300 && $response->getStatusCode() < 400 && !$this->getConfig('headerOnRedirect')) {
+			return;
+		}
+		$this->addFlashHeader($response);
+	}
+
 	/**
 	 * Called before a redirect is performed.
 	 *
 	 * @param \Cake\Event\EventInterface $event
-	 * @param array|string $url
+	 * @param \Psr\Http\Message\UriInterface|array|string $url
 	 * @param \Cake\Http\Response $response
 	 * @return void
 	 */
-	public function beforeRedirect(EventInterface $event, array|string $url, Response $response): void {
+	public function beforeRedirect(EventInterface $event, UriInterface|array|string $url, Response $response): void {
 		if (!$this->getConfig('headerOnRedirect')) {
 			return;
 		}
@@ -166,29 +182,32 @@ class FlashComponent extends Component {
 	 * Adds a flash message.
 	 * Updates "messages" session content (to enable multiple messages of one type).
 	 *
-	 * @param \Exception|string $message Message to output.
+	 * @param \Throwable|string $message Message to output.
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function message(Exception|string $message, array|string|null $options = null): void {
+	public function message(Throwable|string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
 
 		$this->set($message, $options);
-
-		$this->_assertSessionStackSize($options);
 	}
 
 	/**
-	 * @param \Exception|string $message
+	 * @param \Throwable|string $message
 	 * @param array<string, mixed> $options
 	 *
 	 * @return void
 	 */
-	public function set(Exception|string $message, array $options = []): void {
+	public function set(Throwable|string $message, array $options = []): void {
 		$options = $this->_mergeOptions($options);
-		$options += $this->getConfig();
 
-		if ($message instanceof Exception) {
+		if ($this->ajaxHandling()) {
+			$this->transientMessage($message, $options);
+
+			return;
+		}
+
+		if ($message instanceof Throwable) {
 			if (!isset($options['params']['code'])) {
 				$options['params']['code'] = $message->getCode();
 			}
@@ -208,15 +227,20 @@ class FlashComponent extends Component {
 			$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
 		}
 
-		$messages[] = [
+		$entry = [
 			'type' => $options['type'],
 			'message' => $message,
 			'key' => $options['key'],
 			'element' => $options['element'],
 			'params' => $options['params'],
 		];
+		if (!$options['duplicate'] && in_array($entry, $messages, true)) {
+			return;
+		}
+		$messages[] = $entry;
 
 		$this->getSession()->write('Flash.' . $options['key'], $messages);
+		$this->_assertSessionStackSize($options);
 	}
 
 	/**
@@ -238,8 +262,14 @@ class FlashComponent extends Component {
 
 		$options += ['type' => 'info'];
 		$options += ['element' => $options['type']];
+		$config = (array)$this->getConfig();
+		$options += $config;
+		if (!empty($options['plugin']) && !str_contains($options['element'], '.')) {
+			$options['element'] = $options['plugin'] . '.' . $options['element'];
+		}
+		unset($options['plugin']);
 
-		return $options + (array)$this->getConfig();
+		return $options;
 	}
 
 	/**
@@ -249,9 +279,11 @@ class FlashComponent extends Component {
 	 */
 	protected function _assertSessionStackSize(array $options): void {
 		$messages = (array)$this->getSession()->read('Flash.' . $options['key']);
-		if ($messages && count($messages) > $this->getConfig('limit')) {
-			array_shift($messages);
+		$limit = (int)$this->getConfig('limit');
+		if ($limit < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
 		}
+		$messages = array_slice($messages, -$limit);
 		$this->getSession()->write('Flash.' . $options['key'], $messages);
 	}
 
@@ -260,28 +292,41 @@ class FlashComponent extends Component {
 	 * These flash messages are not persisted across requests (only available for current view),
 	 * will be merged into the session flash ones prior to output.
 	 *
-	 * @param string $message Message to output.
+	 * @param \Throwable|string $message Message to output.
 	 * @param array|string|null $options Options
 	 * @return void
 	 */
-	public function transientMessage(Exception|string $message, array|string|null $options = null): void {
+	public function transientMessage(Throwable|string $message, array|string|null $options = null): void {
 		$options = $this->_mergeOptions($options);
+		if ($message instanceof Throwable) {
+			$options['params']['code'] ??= $message->getCode();
+			$message = $message->getMessage();
+		}
+		if (isset($options['escape']) && !isset($options['params']['escape'])) {
+			$options['params']['escape'] = $options['escape'];
+		}
 
 		[$plugin, $element] = pluginSplit($options['element']);
 
 		$options['element'] = $plugin ? $plugin . '.flash/' . $element : 'flash/' . $element;
 
 		$messages = (array)Configure::read('TransientFlash.' . $options['key']);
-		if ($messages && count($messages) > $this->getConfig('limit')) {
-			array_shift($messages);
-		}
-		$messages[] = [
+		$entry = [
 			'type' => $options['type'],
 			'message' => $message,
 			'key' => $options['key'],
 			'element' => $options['element'],
 			'params' => $options['params'],
 		];
+		if (!$options['duplicate'] && in_array($entry, $messages, true)) {
+			return;
+		}
+		$limit = (int)$this->getConfig('limit');
+		if ($limit < 1) {
+			throw new InvalidArgumentException('Flash message limit must be a positive integer.');
+		}
+		$messages = array_slice($messages, -($limit - 1), $limit - 1);
+		$messages[] = $entry;
 		Configure::write('TransientFlash.' . $options['key'], $messages);
 	}
 
@@ -317,15 +362,16 @@ class FlashComponent extends Component {
 			throw new BadMethodCallException('Method transient() does not exist. Select a type e.g. transientInfo().');
 		}
 
+		if (count($args) < 1) {
+			throw new InternalErrorException('Flash message missing.');
+		}
+
 		$transient = false;
 		if (str_starts_with($name, 'transient')) {
 			$transient = true;
 			$name = substr($name, 9); // remove transient
 			$type = lcfirst($name);
 
-			if (count($args) < 1) {
-				throw new InternalErrorException('Flash message missing.');
-			}
 		} else {
 			$type = $name;
 		}
@@ -336,7 +382,7 @@ class FlashComponent extends Component {
 
 		if (!empty($args[1])) {
 			if (!empty($args[1]['plugin'])) {
-				$options = ['element' => $args[1]['plugin'] . '.' . $element];
+				$options['element'] = $args[1]['plugin'] . '.' . $element;
 				unset($args[1]['plugin']);
 			}
 			$options += (array)$args[1];

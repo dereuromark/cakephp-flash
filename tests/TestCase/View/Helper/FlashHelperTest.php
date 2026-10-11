@@ -3,10 +3,12 @@
 namespace Flash\Test\TestCase\View\Helper;
 
 use BadMethodCallException;
+use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use Flash\View\Helper\FlashHelper;
+use InvalidArgumentException;
 
 class FlashHelperTest extends TestCase {
 
@@ -39,13 +41,14 @@ class FlashHelperTest extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
+		Configure::delete('TransientFlash');
 		$this->Flash = null;
 	}
 
 	/**
 	 * @return void
 	 */
-	public function testMessage() {
+	public function testMessage(): void {
 		$result = $this->Flash->message('Foo & bar', 'success');
 		$expected = '<div class="alert alert-success">Foo &amp; bar</div>
 ';
@@ -55,7 +58,7 @@ class FlashHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testRender() {
+	public function testRender(): void {
 		$this->Flash->transientMessage('Foo & bar', 'success');
 
 		$result = $this->Flash->render();
@@ -83,7 +86,7 @@ class FlashHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testFlashWithTypes() {
+	public function testFlashWithTypes(): void {
 		$this->Flash->transientError('I am an error');
 		$this->Flash->transientWarning('I am a warning');
 		$this->Flash->transientInfo('I am some info');
@@ -118,6 +121,50 @@ class FlashHelperTest extends TestCase {
 		$this->expectExceptionMessage('Method transient() does not exist. Select a type, e.g. transientInfo().');
 
 		$this->Flash->transient('Missing type');
+	}
+
+	public function testMagicTransientOptionsReachTheElement(): void {
+		$this->Flash->transientSuccess('<b>Message</b>', ['escape' => false, 'key' => 'custom']);
+
+		$this->assertFalse(Configure::read('TransientFlash.custom.0.params.escape'));
+		$this->assertStringContainsString('<b>Message</b>', $this->Flash->render('custom'));
+	}
+
+	public function testConfiguredKeyIsUsedByDefault(): void {
+		$this->Flash->setConfig('key', 'custom');
+		$this->Flash->transientInfo('Custom message');
+
+		$this->assertStringContainsString('Custom message', $this->Flash->render());
+		$this->assertNull(Configure::read('TransientFlash.custom'));
+	}
+
+	public function testCoreMessageTypeCanBeFiltered(): void {
+		$view = new View(null);
+		$view->getRequest()->getSession()->write('Flash.flash', [
+			[
+				'message' => 'Core message',
+				'element' => 'flash/error',
+				'key' => 'flash',
+				'params' => [],
+			],
+		]);
+		$helper = new FlashHelper($view);
+
+		$this->assertStringContainsString('Core message', $helper->render('flash', ['types' => ['error']]));
+		$this->assertEmpty($view->getRequest()->getSession()->read('Flash.flash'));
+	}
+
+	public function testArrayOptionsWithoutTypeUseInfo(): void {
+		$this->assertStringContainsString('<b>Direct</b>', $this->Flash->message('<b>Direct</b>', ['escape' => false]));
+		$this->Flash->transientMessage('Queued', ['key' => 'custom']);
+
+		$this->assertStringContainsString('Queued', $this->Flash->render('custom'));
+	}
+
+	public function testInvalidLimitFailsWhenHelperLoads(): void {
+		$this->expectException(InvalidArgumentException::class);
+
+		new FlashHelper(new View(), ['limit' => 0]);
 	}
 
 }
