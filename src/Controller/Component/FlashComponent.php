@@ -135,8 +135,8 @@ class FlashComponent extends Component {
 		$controller = $this->getController();
 
 		if (
-			!$this->getConfig('headerKey') ||
-			!$controller->getRequest()->is($this->getConfig('ajaxDetectors'))
+			!$this->getConfig('headerKey')
+			|| !$controller->getRequest()->is($this->getConfig('ajaxDetectors'))
 		) {
 			return;
 		}
